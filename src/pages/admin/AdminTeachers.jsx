@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import ThemeToggle from '../components/ThemeToggle'
-import api from '../services/api'
+import ThemeToggle from '../../components/ThemeToggle'
+import api from '../../services/api'
 
 export default function AdminTeachers() {
   const navigate = useNavigate()

@@ -80,6 +80,27 @@ export default function AdminDashboard() {
           </button>
         </div>
       </header>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Students</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalStudents}</p>
+        </div>
+        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Teachers</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalTeachers}</p>
+        </div>
+        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Courses</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalCourses}</p>
+        </div>
+        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.activeNotices}</p>
+        </div>
+      </div>
+
       {/* Admin Functions Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Manage Students */}
@@ -102,34 +123,6 @@ export default function AdminDashboard() {
           onClick={() => navigate('/admin/teachers')}
           className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-green-500/10 dark:hover:bg-green-500/20 transition-all cursor-pointer"
         >
-          <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-            <i className="fas fa-chalkboard-teacher text-2xl text-green-500"></i>
-          </div>
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Teachers</h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">Add, edit, or remove teacher profiles</p>
-          <button className="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
-            Open
-          </button>
-        </div>v>
-        </div>
-      </div>
-
-      {/* Admin Functions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Manage Students */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-blue-500/10 dark:hover:bg-blue-500/20 transition-all cursor-pointer">
-          <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
-            <i className="fas fa-user-graduate text-2xl text-blue-500"></i>
-          </div>
-          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Students</h3>
-          <p className="text-slate-600 dark:text-slate-400 mb-4">Add, edit, or remove student records</p>
-          <button className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all">
-            Open
-          </button>
-        </div>
-
-        {/* Manage Teachers */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-green-500/10 dark:hover:bg-green-500/20 transition-all cursor-pointer">
           <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-chalkboard-teacher text-2xl text-green-500"></i>
           </div>
@@ -183,23 +176,9 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Fee Management</h3>
           <p className="text-slate-600 dark:text-slate-400 mb-4">Track and manage fee payments</p>
-      {/* Quick Stats */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Students</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalStudents}</p>
-        </div>
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Teachers</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalTeachers}</p>
-        </div>
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Courses</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalCourses}</p>
-        </div>
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.activeNotices}</p>
+          <button className="w-full py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-semibold transition-all">
+            Open
+          </button>
         </div>
       </div>
 
@@ -224,13 +203,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
-      )} className="text-4xl font-bold text-slate-800 dark:text-white">6</p>
-        </div>
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">4</p>
-        </div>
-      </div>
+      )}
     </motion.div>
   )
 }

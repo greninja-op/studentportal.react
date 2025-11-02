@@ -91,7 +91,7 @@ export default function Login() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter your username"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white/70 transition-all"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 text-slate-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-800/70 transition-all"
             />
           </div>
 
@@ -105,7 +105,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white/70 transition-all"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-800/50 text-slate-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-800/70 transition-all"
             />
           </div>
 
@@ -126,7 +126,7 @@ export default function Login() {
           <div 
             ref={selectorRef}
             onMouseLeave={handleMouseLeave}
-            className="relative flex bg-gray-200/30 rounded-full mt-6 mb-3 border border-gray-200/40 p-1"
+            className="relative flex bg-gray-200/30 dark:bg-gray-700/30 rounded-full mt-6 mb-3 border border-gray-200/40 dark:border-gray-600/40 p-1"
           >
             <div
               ref={highlightRef}
@@ -147,7 +147,7 @@ export default function Login() {
               data-role="student"
               onMouseEnter={() => handleLabelHover('student')}
               className={`flex-1 py-2 text-center font-semibold cursor-pointer relative z-10 transition-colors ${
-                role === 'student' ? 'text-white' : 'text-slate-600'
+                role === 'student' ? 'text-white' : 'text-slate-600 dark:text-slate-300'
               }`}
             >
               Student
@@ -167,7 +167,7 @@ export default function Login() {
               data-role="staff"
               onMouseEnter={() => handleLabelHover('staff')}
               className={`flex-1 py-2 text-center font-semibold cursor-pointer relative z-10 transition-colors ${
-                role === 'staff' ? 'text-white' : 'text-slate-600'
+                role === 'staff' ? 'text-white' : 'text-slate-600 dark:text-slate-300'
               }`}
             >
               Staff
@@ -187,7 +187,7 @@ export default function Login() {
               data-role="admin"
               onMouseEnter={() => handleLabelHover('admin')}
               className={`flex-1 py-2 text-center font-semibold cursor-pointer relative z-10 transition-colors ${
-                role === 'admin' ? 'text-white' : 'text-slate-600'
+                role === 'admin' ? 'text-white' : 'text-slate-600 dark:text-slate-300'
               }`}
             >
               Admin
