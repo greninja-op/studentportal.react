@@ -34,7 +34,7 @@ export default function TeacherDashboard() {
           <ThemeToggle />
           <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name}</span>
           <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white">
-            <i className="fas fa-chalkboard-teacher text-xl"></i>
+            <i className="fas fa-chalkboard-teacher text-lg"></i>
           </div>
           <button
             onClick={handleLogout}

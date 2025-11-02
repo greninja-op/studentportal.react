@@ -82,7 +82,7 @@ export default function AdminStudents() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/admin/dashboard')}
-            className="w-10 h-10 rounded-lg bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-white/50 transition-all"
+            className="w-10 h-10 rounded-lg bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all"
           >
             <i className="fas fa-arrow-left text-slate-800 dark:text-white"></i>
           </button>
@@ -91,6 +91,9 @@ export default function AdminStudents() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name}</span>
+          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white">
+            <i className="fas fa-user-shield text-xl"></i>
+          </div>
           <button
             onClick={handleLogout}
             className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all"
@@ -133,7 +136,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="e.g., S2025109"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -149,7 +152,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="Enter full name"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -165,7 +168,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="e.g., john.doe"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -181,7 +184,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="student@university.edu"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -197,7 +200,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="Enter password"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -211,7 +214,7 @@ export default function AdminStudents() {
                 value={formData.department}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               >
                 {departments.map(dept => (
                   <option key={dept} value={dept}>{dept}</option>
@@ -229,7 +232,7 @@ export default function AdminStudents() {
                 value={formData.semester}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               >
                 {semesters.map(sem => (
                   <option key={sem} value={sem}>Semester {sem}</option>
@@ -250,7 +253,7 @@ export default function AdminStudents() {
                 min="2020"
                 max="2030"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -265,7 +268,7 @@ export default function AdminStudents() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 placeholder="+1 234 567 8900"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -279,7 +282,7 @@ export default function AdminStudents() {
                 name="date_of_birth"
                 value={formData.date_of_birth}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               />
             </div>
 
@@ -294,7 +297,7 @@ export default function AdminStudents() {
                 onChange={handleInputChange}
                 placeholder="Enter full address"
                 rows="3"
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
               ></textarea>
             </div>
 
@@ -329,7 +332,7 @@ export default function AdminStudents() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-300 dark:border-slate-600">
+                <tr className="border-b-2 border-slate-300 dark:border-slate-600">
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Student ID</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Name</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Department</th>
@@ -339,16 +342,16 @@ export default function AdminStudents() {
               </thead>
               <tbody>
                 {students.map((student, index) => (
-                  <tr key={index} className="border-b border-slate-200 dark:border-slate-700 hover:bg-white/20 dark:hover:bg-gray-700/20">
+                  <tr key={index} className="border-b border-slate-200 dark:border-slate-700 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/20 transition-all">
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.student_id}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.full_name}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.department}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">Sem {student.semester}</td>
                     <td className="px-4 py-3">
-                      <button className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded mr-2 transition-all">
+                      <button className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mr-2 transition-all">
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded transition-all">
+                      <button className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
                         <i className="fas fa-trash"></i>
                       </button>
                     </td>
