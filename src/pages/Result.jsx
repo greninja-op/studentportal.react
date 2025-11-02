@@ -1,17 +1,41 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
+import api from '../services/api'
 
 export default function Result() {
-  const results = [
-    { subject: 'CS101', name: 'Introduction to Computer Science', grade: 'A', gpa: 4.0 },
-    { subject: 'MATH201', name: 'Calculus II', grade: 'A-', gpa: 3.7 },
-    { subject: 'ENG103', name: 'English Composition', grade: 'B+', gpa: 3.3 },
-    { subject: 'PHY101', name: 'Physics I', grade: 'A', gpa: 4.0 },
-    { subject: 'CHEM101', name: 'General Chemistry', grade: 'B', gpa: 3.0 }
-  ]
+  const navigate = useNavigate()
+  const [results, setResults] = useState([])
+  const [loading, setLoading] = useState(true)
+  const user = api.getCurrentUser()
 
-  const totalGPA = (results.reduce((sum, r) => sum + r.gpa, 0) / results.length).toFixed(2)
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    const fetchResults = async () => {
+      try {
+        const result = await api.getResults(user.student_id)
+        if (result.success) {
+          setResults(result.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching results:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchResults()
+  }, [])
+
+  const totalGPA = results.length > 0 
+    ? (results.reduce((sum, r) => sum + parseFloat(r.grade_point || 0), 0) / results.length).toFixed(2)
+    : '0.00'
 
   return (
     <>
@@ -27,13 +51,19 @@ export default function Result() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Academic Results</h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">Sarah Lee</span>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
           <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
             <i className="fas fa-user-circle text-2xl"></i>
           </div>
         </div>
       </header>
 
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="text-2xl text-slate-800 dark:text-white">Loading results...</div>
+        </div>
+      ) : (
+        <>
       <p className="text-slate-600 dark:text-slate-400 mb-8">Your semester performance</p>
 
       {/* GPA Card */}
@@ -63,21 +93,21 @@ export default function Result() {
               <div className="flex-1">
                 <div className="flex items-center gap-3">
                   <span className="px-3 py-1 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-semibold">
-                    {result.subject}
+                    {result.subject_code}
                   </span>
                   <h3 className="font-semibold text-slate-800 dark:text-white">
-                    {result.name}
+                    {result.subject_name}
                   </h3>
                 </div>
               </div>
               <div className="flex items-center gap-8">
                 <div className="text-center">
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Grade</p>
-                  <p className="text-2xl font-bold text-slate-800 dark:text-white">{result.grade}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Marks</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-white">{result.marks_obtained}/{result.total_marks}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">GPA</p>
-                  <p className="text-2xl font-bold text-slate-800 dark:text-white">{result.gpa.toFixed(1)}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">Grade</p>
+                  <p className="text-2xl font-bold text-slate-800 dark:text-white">{result.grade}</p>
                 </div>
               </div>
             </div>
@@ -88,6 +118,8 @@ export default function Result() {
           Download Transcript
         </button>
       </div>
+      </>
+      )}
       </motion.div>
       <Navigation />
     </>

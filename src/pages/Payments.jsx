@@ -1,14 +1,59 @@
-﻿import { motion } from 'framer-motion'
+﻿import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
+import api from '../services/api'
 
 export default function Payments() {
-  const payments = [
-    { description: 'Semester Fee - Spring 2024', date: 'March 15, 2024', amount: '$2,000', status: 'paid' },
-    { description: 'Library Fee', date: 'February 10, 2024', amount: '$150', status: 'paid' },
-    { description: 'Lab Fee', date: 'January 20, 2024', amount: '$300', status: 'paid' },
-    { description: 'Sports Fee', date: 'December 15, 2023', amount: '$200', status: 'paid' }
-  ]
+  const navigate = useNavigate()
+  const [payments, setPayments] = useState([])
+  const [summary, setSummary] = useState({ total_paid: 0, total_pending: 0 })
+  const [loading, setLoading] = useState(true)
+  const user = api.getCurrentUser()
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    const fetchPayments = async () => {
+      try {
+        const result = await api.getPayments(user.student_id)
+        if (result.success) {
+          setPayments(result.data || [])
+          setSummary(result.summary || { total_paid: 0, total_pending: 0 })
+        }
+      } catch (error) {
+        console.error('Error fetching payments:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPayments()
+  }, [])
+
+  const handlePayNow = async (paymentId) => {
+    const result = await api.processPayment(paymentId, 'Online')
+    if (result.success) {
+      // Refresh payments
+      const updatedResult = await api.getPayments(user.student_id)
+      if (updatedResult.success) {
+        setPayments(updatedResult.data || [])
+        setSummary(updatedResult.summary || { total_paid: 0, total_pending: 0 })
+      }
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-2xl text-slate-800 dark:text-white">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -24,7 +69,7 @@ export default function Payments() {
           <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Fee Payments</h1>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <span className="text-slate-700 dark:text-slate-300 font-medium">Sarah Lee</span>
+            <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
             <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
               <i className="fas fa-user-circle text-2xl"></i>
             </div>
@@ -40,7 +85,7 @@ export default function Payments() {
               <i className="fas fa-check-circle text-3xl"></i>
             </div>
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-1">Paid</h3>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">$2,650</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400">₹{summary.total_paid.toLocaleString()}</p>
           </div>
 
           <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer">
@@ -48,7 +93,7 @@ export default function Payments() {
               <i className="fas fa-exclamation-circle text-3xl"></i>
             </div>
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-1">Pending</h3>
-            <p className="text-3xl font-bold text-red-600 dark:text-red-400">$0</p>
+            <p className="text-3xl font-bold text-red-600 dark:text-red-400">₹{summary.total_pending.toLocaleString()}</p>
           </div>
         </div>
 
@@ -59,18 +104,38 @@ export default function Payments() {
             {payments.map((payment, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center p-4 bg-green-500/10 dark:bg-green-500/20 rounded-xl hover:bg-green-500/20 dark:hover:bg-green-500/30 transition-all cursor-pointer"
+                className={`flex justify-between items-center p-4 rounded-xl transition-all ${
+                  payment.status === 'paid' 
+                    ? 'bg-green-500/10 dark:bg-green-500/20 hover:bg-green-500/20 dark:hover:bg-green-500/30' 
+                    : 'bg-red-500/10 dark:bg-red-500/20 hover:bg-red-500/20 dark:hover:bg-red-500/30'
+                }`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
-                    <i className="fas fa-check"></i>
+                <div className="flex items-center gap-4 flex-1">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    payment.status === 'paid' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                  }`}>
+                    <i className={`fas ${
+                      payment.status === 'paid' ? 'fa-check' : 'fa-clock'
+                    }`}></i>
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-semibold text-slate-800 dark:text-white">{payment.description}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">{payment.date}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Due: {new Date(payment.due_date).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-                <p className="text-xl font-bold text-slate-800 dark:text-white">{payment.amount}</p>
+                <div className="flex items-center gap-4">
+                  <p className="text-xl font-bold text-slate-800 dark:text-white">₹{payment.amount.toLocaleString()}</p>
+                  {payment.status === 'pending' && (
+                    <button
+                      onClick={() => handlePayNow(payment.id)}
+                      className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg font-semibold transition-all"
+                    >
+                      Pay Now
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

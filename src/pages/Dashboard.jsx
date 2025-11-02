@@ -1,8 +1,46 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
+import api from '../services/api'
 
 export default function Dashboard() {
+  const navigate = useNavigate()
+  const [stats, setStats] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const user = api.getCurrentUser()
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    const fetchStats = async () => {
+      try {
+        const result = await api.getDashboardStats(user.student_id)
+        if (result.success) {
+          setStats(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-2xl text-slate-800 dark:text-white">Loading...</div>
+      </div>
+    )
+  }
+
   return (
     <>
       <motion.div
@@ -17,7 +55,7 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">Sarah Lee</span>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
           <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
             <i className="fas fa-user-circle text-2xl"></i>
           </div>
@@ -34,7 +72,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
-                Welcome Back, Sarah!
+                Welcome Back, {user?.name?.split(' ')[0] || 'Student'}!
               </h2>
               <p className="text-slate-600 dark:text-slate-400">
                 Here's what's happening today. Let's make it a productive one!
@@ -73,7 +111,7 @@ export default function Dashboard() {
                     />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-4xl font-bold text-slate-800 dark:text-white">3.8</span>
+                    <span className="text-4xl font-bold text-slate-800 dark:text-white">{stats?.gpa || '0.0'}</span>
                     <span className="text-sm text-slate-600 dark:text-slate-400">GPA</span>
                   </div>
                 </div>

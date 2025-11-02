@@ -1,8 +1,15 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import api from '../services/api'
 
 export default function Navigation() {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    api.logout()
+    navigate('/login')
+  }
 
   const isActive = (path) => location.pathname === path
 
@@ -134,6 +141,16 @@ export default function Navigation() {
           </svg>
           <span className="text-sm relative z-10">Analysis</span>
         </Link>
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-slate-600 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+        >
+          <svg fill="currentColor" height="20" viewBox="0 0 256 256" width="20" xmlns="http://www.w3.org/2000/svg">
+            <path d="M120,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h64a8,8,0,0,1,0,16H48V208h64A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"></path>
+          </svg>
+          <span className="text-sm">Logout</span>
+        </button>
       </div>
     </nav>
   )

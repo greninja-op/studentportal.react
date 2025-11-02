@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import ThemeToggle from '../components/ThemeToggle'
+import api from '../services/api'
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('student')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
   const highlightRef = useRef(null)
   const selectorRef = useRef(null)
@@ -33,11 +36,22 @@ export default function Login() {
     moveHighlight(role)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Simple validation - in real app, authenticate here
-    if (username && password) {
-      navigate('/dashboard')
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const result = await api.login(username, password)
+      if (result.success) {
+        navigate('/dashboard')
+      } else {
+        setError(result.message || 'Login failed. Please try again.')
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -88,11 +102,18 @@ export default function Login() {
             />
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+            disabled={isLoading}
+            className="w-full py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all disabled:transform-none"
           >
-            Log In
+            {isLoading ? 'Logging in...' : 'Log In'}
           </button>
 
           <div 

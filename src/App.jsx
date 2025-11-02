@@ -7,6 +7,13 @@ import Payments from './pages/Payments'
 import Subjects from './pages/Subjects'
 import Result from './pages/Result'
 import Analysis from './pages/Analysis'
+import api from './services/api'
+
+// Protected Route wrapper
+function ProtectedRoute({ children }) {
+  const isAuthenticated = api.isAuthenticated()
+  return isAuthenticated ? children : <Navigate to="/login" replace />
+}
 
 function App() {
   return (
@@ -15,12 +22,12 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/notice" element={<Notice />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/subjects" element={<Subjects />} />
-          <Route path="/result" element={<Result />} />
-          <Route path="/analysis" element={<Analysis />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/notice" element={<ProtectedRoute><Notice /></ProtectedRoute>} />
+          <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+          <Route path="/subjects" element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
+          <Route path="/result" element={<ProtectedRoute><Result /></ProtectedRoute>} />
+          <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
         </Routes>
       </AnimatePresence>
     </Router>

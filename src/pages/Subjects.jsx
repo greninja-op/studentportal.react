@@ -1,15 +1,45 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
+import api from '../services/api'
 
 export default function Subjects() {
-  const subjects = [
-    { code: 'CS101', name: 'Introduction to Computer Science', credits: 4, instructor: 'Dr. John Smith' },
-    { code: 'MATH201', name: 'Calculus II', credits: 4, instructor: 'Prof. Emily Davis' },
-    { code: 'ENG103', name: 'English Composition', credits: 3, instructor: 'Dr. Sarah Johnson' },
-    { code: 'PHY101', name: 'Physics I', credits: 4, instructor: 'Dr. Michael Brown' },
-    { code: 'CHEM101', name: 'General Chemistry', credits: 4, instructor: 'Prof. Lisa White' }
-  ]
+  const navigate = useNavigate()
+  const [subjects, setSubjects] = useState([])
+  const [loading, setLoading] = useState(true)
+  const user = api.getCurrentUser()
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    const fetchSubjects = async () => {
+      try {
+        const result = await api.getSubjects(user.student_id)
+        if (result.success) {
+          setSubjects(result.data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching subjects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSubjects()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-2xl text-slate-800 dark:text-white">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -25,7 +55,7 @@ export default function Subjects() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">My Subjects</h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">Sarah Lee</span>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
           <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
             <i className="fas fa-user-circle text-2xl"></i>
           </div>
@@ -44,14 +74,14 @@ export default function Subjects() {
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <div className="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-semibold mb-2">
-                  {subject.code}
+                  {subject.subject_code}
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
-                  {subject.name}
+                  {subject.subject_name}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm mb-1">
                   <i className="fas fa-user-tie mr-2"></i>
-                  {subject.instructor}
+                  {subject.teacher_name}
                 </p>
                 <p className="text-slate-600 dark:text-slate-400 text-sm">
                   <i className="fas fa-graduation-cap mr-2"></i>
