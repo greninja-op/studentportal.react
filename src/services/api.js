@@ -4,14 +4,14 @@ const API_BASE_URL = 'http://localhost/studentportal-api/api';
 // API Service for Student Portal
 class ApiService {
   // Authentication
-  async login(username, password) {
+  async login(username, password, role) {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, role }),
       });
       const data = await response.json();
       

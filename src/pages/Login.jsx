@@ -42,9 +42,16 @@ export default function Login() {
     setIsLoading(true)
 
     try {
-      const result = await api.login(username, password)
+      const result = await api.login(username, password, role)
       if (result.success) {
-        navigate('/dashboard')
+        // Redirect based on role
+        if (result.user.role === 'admin') {
+          navigate('/admin/dashboard')
+        } else if (result.user.role === 'staff') {
+          navigate('/teacher/dashboard')
+        } else {
+          navigate('/dashboard')
+        }
       } else {
         setError(result.message || 'Login failed. Please try again.')
       }
