@@ -9,6 +9,8 @@ import Result from './pages/Result'
 import Analysis from './pages/Analysis'
 import AdminDashboard from './pages/AdminDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
+import AdminStudents from './pages/admin/AdminStudents'
+import AdminTeachers from './pages/admin/AdminTeachers'
 import api from './services/api'
 
 // Protected Route wrapper
@@ -45,6 +47,8 @@ function App() {
           
           {/* Admin Routes */}
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
+          <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
           
           {/* Teacher Routes */}
           <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['staff']}><TeacherDashboard /></ProtectedRoute>} />

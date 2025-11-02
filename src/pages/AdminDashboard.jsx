@@ -7,12 +7,40 @@ import api from '../services/api'
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const user = api.getCurrentUser()
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalCourses: 0,
+    activeNotices: 0
+  })
+  const [recentNotices, setRecentNotices] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
       navigate('/login')
+      return
     }
+    
+    fetchDashboardData()
   }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      // Fetch notices
+      const noticesResult = await api.getNotices()
+      if (noticesResult.success) {
+        setRecentNotices(noticesResult.data.slice(0, 3))
+        setStats(prev => ({ ...prev, activeNotices: noticesResult.data.length }))
+      }
+      // TODO: Add API calls for student/teacher/course counts
+      setStats(prev => ({ ...prev, totalStudents: 1, totalTeachers: 5, totalCourses: 6 }))
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     api.logout()
@@ -30,31 +58,37 @@ export default function AdminDashboard() {
       {/* Top Header */}
       <header className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Admin Dashboard</h1>
-        <div className="flex items-center gap-4">
-          <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name}</span>
-          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white">
-            <i className="fas fa-user-shield text-xl"></i>
+      {/* Admin Functions Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Manage Students */}
+        <div 
+          onClick={() => navigate('/admin/students')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-blue-500/10 dark:hover:bg-blue-500/20 transition-all cursor-pointer"
+        >
+          <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-4">
+            <i className="fas fa-user-graduate text-2xl text-blue-500"></i>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-all"
-          >
-            Logout
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Students</h3>
+          <p className="text-slate-600 dark:text-slate-400 mb-4">Add, edit, or remove student records</p>
+          <button className="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all">
+            Open
           </button>
         </div>
-      </header>
 
-      {/* Welcome Card */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-8 mb-8 text-white shadow-2xl">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-            <i className="fas fa-user-shield text-3xl"></i>
+        {/* Manage Teachers */}
+        <div 
+          onClick={() => navigate('/admin/teachers')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-green-500/10 dark:hover:bg-green-500/20 transition-all cursor-pointer"
+        >
+          <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+            <i className="fas fa-chalkboard-teacher text-2xl text-green-500"></i>
           </div>
-          <div>
-            <h2 className="text-3xl font-bold">Welcome, {user?.full_name}!</h2>
-            <p className="text-purple-100">Administrator Access</p>
-          </div>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Manage Teachers</h3>
+          <p className="text-slate-600 dark:text-slate-400 mb-4">Add, edit, or remove teacher profiles</p>
+          <button className="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
+            Open
+          </button>
+        </div>v>
         </div>
       </div>
 
@@ -127,25 +161,48 @@ export default function AdminDashboard() {
           </div>
           <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Fee Management</h3>
           <p className="text-slate-600 dark:text-slate-400 mb-4">Track and manage fee payments</p>
-          <button className="w-full py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-semibold transition-all">
-            Open
-          </button>
-        </div>
-      </div>
-
       {/* Quick Stats */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <p className="text-slate-600 dark:text-slate-400 mb-2">Total Students</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">1</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalStudents}</p>
         </div>
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <p className="text-slate-600 dark:text-slate-400 mb-2">Total Teachers</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">5</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalTeachers}</p>
         </div>
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <p className="text-slate-600 dark:text-slate-400 mb-2">Total Courses</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">6</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalCourses}</p>
+        </div>
+        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
+          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.activeNotices}</p>
+        </div>
+      </div>
+
+      {/* Recent Notices */}
+      {recentNotices.length > 0 && (
+        <div className="mt-8 bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Recent Notices</h3>
+          <div className="space-y-3">
+            {recentNotices.map((notice, index) => (
+              <div key={index} className="flex items-start gap-3 p-3 bg-indigo-500/10 dark:bg-indigo-500/20 rounded-lg">
+                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                  <i className="fas fa-bell text-indigo-500"></i>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-slate-800 dark:text-white">{notice.title}</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">{notice.content.substring(0, 100)}...</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    {new Date(notice.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )} className="text-4xl font-bold text-slate-800 dark:text-white">6</p>
         </div>
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
