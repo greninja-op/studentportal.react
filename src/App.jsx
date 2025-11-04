@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'motion/react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Notice from './pages/Notice'

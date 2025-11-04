@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 
 export default function ImageCropper({ onImageCropped, onCancel }) {
   const [imageSrc, setImageSrc] = useState(null)

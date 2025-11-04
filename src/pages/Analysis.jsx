@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
 
