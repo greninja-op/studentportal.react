@@ -82,22 +82,133 @@ export default function AdminDashboard() {
       </header>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <motion.div 
+          whileHover={{ scale: 1.02, y: -5 }}
+          className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-white/90 font-medium">Total Students</p>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <i className="fas fa-user-graduate text-white"></i>
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-white mb-1">{stats.totalStudents}</p>
+          <p className="text-blue-100 text-sm">+12% from last month</p>
+        </motion.div>
+
+        <motion.div 
+          whileHover={{ scale: 1.02, y: -5 }}
+          className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-white/90 font-medium">Total Teachers</p>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <i className="fas fa-chalkboard-teacher text-white"></i>
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-white mb-1">{stats.totalTeachers}</p>
+          <p className="text-green-100 text-sm">Active faculty members</p>
+        </motion.div>
+
+        <motion.div 
+          whileHover={{ scale: 1.02, y: -5 }}
+          className="bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-white/90 font-medium">Total Courses</p>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <i className="fas fa-book text-white"></i>
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-white mb-1">{stats.totalCourses}</p>
+          <p className="text-purple-100 text-sm">Across all departments</p>
+        </motion.div>
+
+        <motion.div 
+          whileHover={{ scale: 1.02, y: -5 }}
+          className="bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-white/90 font-medium">Active Notices</p>
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+              <i className="fas fa-bell text-white"></i>
+            </div>
+          </div>
+          <p className="text-4xl font-bold text-white mb-1">{stats.activeNotices}</p>
+          <p className="text-orange-100 text-sm">Posted this week</p>
+        </motion.div>
+      </div>
+
+      {/* Quick Overview Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Students</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalStudents}</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <i className="fas fa-calendar-alt text-2xl text-indigo-500"></i>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Today's Overview</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-blue-500/10 dark:bg-blue-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Total Classes</span>
+              <span className="font-bold text-slate-800 dark:text-white">24</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-green-500/10 dark:bg-green-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Attendance</span>
+              <span className="font-bold text-slate-800 dark:text-white">92%</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-purple-500/10 dark:bg-purple-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Exams Today</span>
+              <span className="font-bold text-slate-800 dark:text-white">3</span>
+            </div>
+          </div>
         </div>
+
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Teachers</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalTeachers}</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <i className="fas fa-chart-line text-2xl text-emerald-500"></i>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Performance</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Pass Rate</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">87%</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-blue-500/10 dark:bg-blue-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Avg. GPA</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400">3.42</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-amber-500/10 dark:bg-amber-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Pending Results</span>
+              <span className="font-bold text-amber-600 dark:text-amber-400">12</span>
+            </div>
+          </div>
         </div>
+
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Total Courses</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.totalCourses}</p>
-        </div>
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <p className="text-slate-600 dark:text-slate-400 mb-2">Active Notices</p>
-          <p className="text-4xl font-bold text-slate-800 dark:text-white">{stats.activeNotices}</p>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
+              <i className="fas fa-exclamation-triangle text-2xl text-rose-500"></i>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Alerts</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 bg-rose-500/10 dark:bg-rose-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Low Attendance</span>
+              <span className="font-bold text-rose-600 dark:text-rose-400">8</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-orange-500/10 dark:bg-orange-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Pending Fees</span>
+              <span className="font-bold text-orange-600 dark:text-orange-400">15</span>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-amber-500/10 dark:bg-amber-500/20 rounded-lg">
+              <span className="text-slate-700 dark:text-slate-300">Submissions Due</span>
+              <span className="font-bold text-amber-600 dark:text-amber-400">23</span>
+            </div>
+          </div>
         </div>
       </div>
 

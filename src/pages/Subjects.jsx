@@ -55,10 +55,18 @@ export default function Subjects() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">My Subjects</h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
-          <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
-            <i className="fas fa-user-circle text-2xl"></i>
-          </div>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name || 'Student'}</span>
+          {user?.profile_image ? (
+            <img 
+              src={user.profile_image} 
+              alt={user.full_name} 
+              className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
+              {user?.full_name?.charAt(0) || 'S'}
+            </div>
+          )}
         </div>
       </header>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle'
+import ImageCropper from '../../components/ImageCropper'
 import api from '../../services/api'
 
 export default function AdminStudents() {
@@ -10,6 +11,15 @@ export default function AdminStudents() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
+  const [showCropper, setShowCropper] = useState(false)
+  const [editingStudent, setEditingStudent] = useState(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [studentToDelete, setStudentToDelete] = useState(null)
+  const [toast, setToast] = useState({ show: false, message: '', type: '' })
   
   // Form data
   const [formData, setFormData] = useState({
@@ -29,25 +39,92 @@ export default function AdminStudents() {
   const departments = ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil']
   const semesters = ['1', '2', '3', '4', '5', '6', '7', '8']
 
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type })
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: '' })
+    }, 3000)
+  }
+
   useEffect(() => {
     if (!user || user.role !== 'admin') {
       navigate('/login')
       return
     }
-    // TODO: Fetch students from API
-    setLoading(false)
+    fetchStudents()
   }, [])
+
+  const fetchStudents = async () => {
+    setLoading(true)
+    const response = await api.getStudents()
+    if (response.success) {
+      setStudents(response.students)
+    }
+    setLoading(false)
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    // TODO: API call to add student
-    console.log('Adding student:', formData)
-    alert('Student added successfully! (API integration pending)')
+  const handleImageCropped = (blob) => {
+    setSelectedImage(blob)
+    setImagePreview(URL.createObjectURL(blob))
+    setShowCropper(false)
+  }
+
+  const handleEdit = (student) => {
+    setIsEditMode(true)
+    setEditingStudent(student) // Store original student data including original student_id
+    setFormData({
+      student_id: student.student_id,
+      full_name: student.full_name,
+      username: student.username || '',
+      email: student.email || '',
+      password: '',
+      department: student.department,
+      semester: student.semester,
+      year: student.year || new Date().getFullYear(),
+      phone: student.phone || '',
+      date_of_birth: student.date_of_birth || '',
+      address: student.address || ''
+    })
+    if (student.profile_image) {
+      setImagePreview(student.profile_image)
+    }
+    setShowAddForm(true)
+  }
+
+  const handleDelete = (studentId) => {
+    setStudentToDelete(studentId)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    setLoading(true)
+    setShowDeleteModal(false)
+    
+    const response = await api.deleteStudent(studentToDelete)
+    
+    if (response.success) {
+      showToast('Student deleted successfully!', 'success')
+      fetchStudents()
+    } else {
+      showToast(response.error || 'Failed to delete student', 'error')
+    }
+    setLoading(false)
+    setStudentToDelete(null)
+  }
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false)
+    setStudentToDelete(null)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setEditingStudent(null)
     setShowAddForm(false)
     setFormData({
       student_id: '',
@@ -62,6 +139,84 @@ export default function AdminStudents() {
       date_of_birth: '',
       address: ''
     })
+    setSelectedImage(null)
+    setImagePreview(null)
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    
+    let profileImageUrl = isEditMode ? (imagePreview || null) : null
+    
+    // Upload image if selected
+    if (selectedImage) {
+      console.log('Selected image:', selectedImage)
+      console.log('Is Blob?', selectedImage instanceof Blob)
+      console.log('Image type:', selectedImage.type)
+      console.log('Image size:', selectedImage.size)
+      
+      {/* Validate that we have a valid blob */}
+      if (!selectedImage || !(selectedImage instanceof Blob)) {
+        showToast('Invalid image data. Please try uploading again.', 'error')
+        setLoading(false)
+        return
+      }
+      
+      setUploading(true)
+      const uploadResponse = await api.uploadImage(selectedImage)
+      setUploading(false)
+      
+      console.log('Upload response:', uploadResponse)
+      
+      if (uploadResponse.success) {
+        profileImageUrl = uploadResponse.image_url
+      } else {
+        showToast('Failed to upload image: ' + (uploadResponse.error || 'Unknown error'), 'error')
+        setLoading(false)
+        return
+      }
+    }
+    
+    // Add profile image URL to form data
+    const submitData = { ...formData }
+    if (profileImageUrl) {
+      submitData.profile_image = profileImageUrl
+    }
+    
+    console.log('Submitting student data:', submitData)
+    const response = isEditMode 
+      ? await api.updateStudent(editingStudent.student_id, submitData) // Use original student_id to find record
+      : await api.addStudent(submitData)
+    console.log(isEditMode ? 'Update student response:' : 'Add student response:', response)
+    
+    if (response.success) {
+      showToast(isEditMode ? 'Student updated successfully!' : 'Student added successfully!', 'success')
+      setShowAddForm(false)
+      setIsEditMode(false)
+      setEditingStudent(null)
+      setFormData({
+        student_id: '',
+        full_name: '',
+        username: '',
+        email: '',
+        password: '',
+        department: 'Computer Science',
+        semester: '1',
+        year: new Date().getFullYear(),
+        phone: '',
+        date_of_birth: '',
+        address: ''
+      })
+      setSelectedImage(null)
+      setImagePreview(null)
+      // Refresh the students list
+      fetchStudents()
+    } else {
+      const errorMsg = response.error || response.message || (isEditMode ? 'Failed to update student' : 'Failed to add student')
+      showToast(errorMsg, 'error')
+      setLoading(false)
+    }
   }
 
   const handleLogout = () => {
@@ -122,8 +277,58 @@ export default function AdminStudents() {
           exit={{ opacity: 0, height: 0 }}
           className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6"
         >
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Add New Student</h2>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">
+            {isEditMode ? 'Edit Student' : 'Add New Student'}
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Photo Upload */}
+            <div className="flex items-center gap-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div>
+                {imagePreview ? (
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                  />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                    <i className="fas fa-user text-4xl text-gray-500 dark:text-gray-400"></i>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
+                  Profile Photo (Optional)
+                </label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowCropper(true)}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold text-sm"
+                  >
+                    <i className="fas fa-camera mr-2"></i>
+                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                  </button>
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview(null)
+                        setSelectedImage(null)
+                      }}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                  Image will be auto-cropped to circular format
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Student ID */}
             <div>
               <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
@@ -302,14 +507,40 @@ export default function AdminStudents() {
             </div>
 
             {/* Submit Button */}
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 flex gap-4">
               <button
                 type="submit"
-                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                disabled={uploading || loading}
+                className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <i className="fas fa-save mr-2"></i>
-                Add Student
+                {uploading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    Uploading Image...
+                  </>
+                ) : loading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin mr-2"></i>
+                    {isEditMode ? 'Updating Student...' : 'Adding Student...'}
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-save mr-2"></i>
+                    {isEditMode ? 'Update Student' : 'Add Student'}
+                  </>
+                )}
               </button>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="flex-1 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                >
+                  <i className="fas fa-times mr-2"></i>
+                  Cancel
+                </button>
+              )}
+            </div>
             </div>
           </form>
         </motion.div>
@@ -348,10 +579,16 @@ export default function AdminStudents() {
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.department}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">Sem {student.semester}</td>
                     <td className="px-4 py-3">
-                      <button className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mr-2 transition-all">
+                      <button 
+                        onClick={() => handleEdit(student)}
+                        className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mr-2 transition-all"
+                      >
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                      <button 
+                        onClick={() => handleDelete(student.student_id)}
+                        className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                      >
                         <i className="fas fa-trash"></i>
                       </button>
                     </td>
@@ -362,6 +599,82 @@ export default function AdminStudents() {
           </div>
         )}
       </div>
+
+      {/* Image Cropper Modal */}
+      {showCropper && (
+        <ImageCropper
+          onImageCropped={handleImageCropped}
+          onCancel={() => setShowCropper(false)}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl border border-red-200 dark:border-red-900"
+          >
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
+                <i className="fas fa-exclamation-triangle text-3xl text-red-600 dark:text-red-400"></i>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+                Delete Student
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-6">
+                Are you sure you want to delete this student? This action cannot be undone and will permanently remove all student data.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-slate-800 dark:text-white rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                >
+                  <i className="fas fa-trash mr-2"></i>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl backdrop-blur-xl border-2 flex items-center gap-3 max-w-md ${
+            toast.type === 'success' 
+              ? 'bg-green-500/90 border-green-400 text-white' 
+              : 'bg-red-500/90 border-red-400 text-white'
+          }`}
+        >
+          <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+            toast.type === 'success' 
+              ? 'bg-white/20' 
+              : 'bg-white/20'
+          }`}>
+            <i className={`fas ${toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-xl`}></i>
+          </div>
+          <p className="font-semibold flex-1">{toast.message}</p>
+          <button
+            onClick={() => setToast({ show: false, message: '', type: '' })}
+            className="flex-shrink-0 text-white/80 hover:text-white transition-colors"
+          >
+            <i className="fas fa-times text-lg"></i>
+          </button>
+        </motion.div>
+      )}
     </motion.div>
   )
 }

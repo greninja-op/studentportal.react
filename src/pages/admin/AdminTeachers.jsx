@@ -32,9 +32,17 @@ export default function AdminTeachers() {
       navigate('/login')
       return
     }
-    // TODO: Fetch teachers from API
-    setLoading(false)
+    fetchTeachers()
   }, [])
+
+  const fetchTeachers = async () => {
+    setLoading(true)
+    const response = await api.getTeachers()
+    if (response.success) {
+      setTeachers(response.teachers)
+    }
+    setLoading(false)
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -43,21 +51,30 @@ export default function AdminTeachers() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: API call to add teacher
-    console.log('Adding teacher:', formData)
-    alert('Teacher added successfully! (API integration pending)')
-    setShowAddForm(false)
-    setFormData({
-      teacher_id: '',
-      full_name: '',
-      username: '',
-      email: '',
-      password: '',
-      department: 'Computer Science',
-      specialization: '',
-      phone: '',
-      qualification: 'Ph.D.'
-    })
+    setLoading(true)
+    
+    const response = await api.addTeacher(formData)
+    
+    if (response.success) {
+      alert('Teacher added successfully!')
+      setShowAddForm(false)
+      setFormData({
+        teacher_id: '',
+        full_name: '',
+        username: '',
+        email: '',
+        password: '',
+        department: 'Computer Science',
+        specialization: '',
+        phone: '',
+        qualification: 'Ph.D.'
+      })
+      // Refresh the teachers list
+      fetchTeachers()
+    } else {
+      alert(response.error || 'Failed to add teacher')
+      setLoading(false)
+    }
   }
 
   const handleLogout = () => {

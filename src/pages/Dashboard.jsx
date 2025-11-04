@@ -55,10 +55,18 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.name || 'Student'}</span>
-          <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white">
-            <i className="fas fa-user-circle text-2xl"></i>
-          </div>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name || 'Student'}</span>
+          {user?.profile_image ? (
+            <img 
+              src={user.profile_image} 
+              alt={user.full_name} 
+              className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
+              {user?.full_name?.charAt(0) || 'S'}
+            </div>
+          )}
         </div>
       </header>
 
@@ -67,15 +75,23 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Welcome Card */}
           <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-indigo-500 flex items-center justify-center text-white flex-shrink-0">
-              <i className="fas fa-user-circle text-3xl"></i>
-            </div>
+            {user?.profile_image ? (
+              <img 
+                src={user.profile_image} 
+                alt={user.full_name} 
+                className="w-16 h-16 rounded-full object-cover border-4 border-indigo-500 flex-shrink-0"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 text-2xl font-bold">
+                {user?.full_name?.charAt(0) || 'S'}
+              </div>
+            )}
             <div>
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
-                Welcome Back, {user?.name?.split(' ')[0] || 'Student'}!
+                Welcome Back, {user?.full_name?.split(' ')[0] || 'Student'}!
               </h2>
               <p className="text-slate-600 dark:text-slate-400">
-                Here's what's happening today. Let's make it a productive one!
+                {user?.department && `${user.department} • Semester ${user.semester || 'N/A'}`}
               </p>
             </div>
           </div>
