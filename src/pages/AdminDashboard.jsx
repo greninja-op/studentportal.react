@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'motion/react'
+import { motion, AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import ThemeToggle from '../components/ThemeToggle'
 import api from '../services/api'
@@ -15,6 +15,12 @@ export default function AdminDashboard() {
   })
   const [recentNotices, setRecentNotices] = useState([])
   const [loading, setLoading] = useState(true)
+  
+  // Student/Teacher drill-down states
+  const [showStudentModal, setShowStudentModal] = useState(false)
+  const [showTeacherModal, setShowTeacherModal] = useState(false)
+  const [selectedYear, setSelectedYear] = useState(null)
+  const [selectedDepartment, setSelectedDepartment] = useState(null)
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -81,132 +87,69 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Quick Stats - Interactive Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <motion.div 
           whileHover={{ scale: 1.02, y: -5 }}
-          className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+          onClick={() => setShowStudentModal(true)}
+          className="bg-gradient-to-br from-blue-500 to-blue-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-white/90 font-medium">Total Students</p>
+            <p className="text-white/90 font-medium">View Students</p>
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
               <i className="fas fa-user-graduate text-white"></i>
             </div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{stats.totalStudents}</p>
-          <p className="text-blue-100 text-sm">+12% from last month</p>
+          <p className="text-4xl font-bold text-white mb-1">Students</p>
+          <p className="text-blue-100 text-sm">Browse by year and department</p>
         </motion.div>
 
         <motion.div 
           whileHover={{ scale: 1.02, y: -5 }}
-          className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
+          onClick={() => setShowTeacherModal(true)}
+          className="bg-gradient-to-br from-green-500 to-green-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg cursor-pointer"
         >
           <div className="flex items-center justify-between mb-2">
-            <p className="text-white/90 font-medium">Total Teachers</p>
+            <p className="text-white/90 font-medium">View Teachers</p>
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
               <i className="fas fa-chalkboard-teacher text-white"></i>
             </div>
           </div>
-          <p className="text-4xl font-bold text-white mb-1">{stats.totalTeachers}</p>
-          <p className="text-green-100 text-sm">Active faculty members</p>
-        </motion.div>
-
-        <motion.div 
-          whileHover={{ scale: 1.02, y: -5 }}
-          className="bg-gradient-to-br from-purple-500 to-purple-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-white/90 font-medium">Total Courses</p>
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <i className="fas fa-book text-white"></i>
-            </div>
-          </div>
-          <p className="text-4xl font-bold text-white mb-1">{stats.totalCourses}</p>
-          <p className="text-purple-100 text-sm">Across all departments</p>
-        </motion.div>
-
-        <motion.div 
-          whileHover={{ scale: 1.02, y: -5 }}
-          className="bg-gradient-to-br from-orange-500 to-orange-600 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-white/90 font-medium">Active Notices</p>
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <i className="fas fa-bell text-white"></i>
-            </div>
-          </div>
-          <p className="text-4xl font-bold text-white mb-1">{stats.activeNotices}</p>
-          <p className="text-orange-100 text-sm">Posted this week</p>
+          <p className="text-4xl font-bold text-white mb-1">Teachers</p>
+          <p className="text-green-100 text-sm">Browse by department</p>
         </motion.div>
       </div>
 
-      {/* Quick Overview Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* Notifications Card */}
+      <div className="mb-8">
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center">
-              <i className="fas fa-calendar-alt text-2xl text-indigo-500"></i>
+            <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+              <i className="fas fa-bell text-2xl text-orange-500"></i>
             </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Today's Overview</h3>
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Notifications</h3>
           </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-blue-500/10 dark:bg-blue-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Total Classes</span>
-              <span className="font-bold text-slate-800 dark:text-white">24</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-between p-4 bg-rose-500/10 dark:bg-rose-500/20 rounded-lg">
+              <div>
+                <span className="text-slate-700 dark:text-slate-300 text-sm">Low Attendance</span>
+                <p className="font-bold text-rose-600 dark:text-rose-400 text-2xl">8</p>
+              </div>
+              <i className="fas fa-exclamation-circle text-3xl text-rose-500/50"></i>
             </div>
-            <div className="flex items-center justify-between p-3 bg-green-500/10 dark:bg-green-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Attendance</span>
-              <span className="font-bold text-slate-800 dark:text-white">92%</span>
+            <div className="flex items-center justify-between p-4 bg-orange-500/10 dark:bg-orange-500/20 rounded-lg">
+              <div>
+                <span className="text-slate-700 dark:text-slate-300 text-sm">Pending Fees</span>
+                <p className="font-bold text-orange-600 dark:text-orange-400 text-2xl">15</p>
+              </div>
+              <i className="fas fa-dollar-sign text-3xl text-orange-500/50"></i>
             </div>
-            <div className="flex items-center justify-between p-3 bg-purple-500/10 dark:bg-purple-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Exams Today</span>
-              <span className="font-bold text-slate-800 dark:text-white">3</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <i className="fas fa-chart-line text-2xl text-emerald-500"></i>
-            </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Performance</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Pass Rate</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">87%</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-blue-500/10 dark:bg-blue-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Avg. GPA</span>
-              <span className="font-bold text-blue-600 dark:text-blue-400">3.42</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-amber-500/10 dark:bg-amber-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Pending Results</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400">12</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
-              <i className="fas fa-exclamation-triangle text-2xl text-rose-500"></i>
-            </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-white">Alerts</h3>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-rose-500/10 dark:bg-rose-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Low Attendance</span>
-              <span className="font-bold text-rose-600 dark:text-rose-400">8</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-orange-500/10 dark:bg-orange-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Pending Fees</span>
-              <span className="font-bold text-orange-600 dark:text-orange-400">15</span>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-amber-500/10 dark:bg-amber-500/20 rounded-lg">
-              <span className="text-slate-700 dark:text-slate-300">Submissions Due</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400">23</span>
+            <div className="flex items-center justify-between p-4 bg-amber-500/10 dark:bg-amber-500/20 rounded-lg">
+              <div>
+                <span className="text-slate-700 dark:text-slate-300 text-sm">Submissions Due</span>
+                <p className="font-bold text-amber-600 dark:text-amber-400 text-2xl">23</p>
+              </div>
+              <i className="fas fa-clipboard-list text-3xl text-amber-500/50"></i>
             </div>
           </div>
         </div>
@@ -315,6 +258,147 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+
+      {/* Student Browse Modal */}
+      <AnimatePresence>
+        {showStudentModal && (
+          <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowStudentModal(false)
+            setSelectedYear(null)
+            setSelectedDepartment(null)
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-4xl w-full shadow-2xl max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Browse Students</h2>
+              <button
+                onClick={() => {
+                  setShowStudentModal(false)
+                  setSelectedYear(null)
+                  setSelectedDepartment(null)
+                }}
+                className="w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+              >
+                <i className="fas fa-times text-slate-800 dark:text-white"></i>
+              </button>
+            </div>
+
+            {!selectedYear ? (
+              /* Year Selection */
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Select Academic Year</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {['1st Year', '2nd Year', '3rd Year', '4th Year'].map((year) => (
+                    <motion.button
+                      key={year}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedYear(year)}
+                      className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <i className="fas fa-graduation-cap text-3xl mb-2"></i>
+                      <p>{year}</p>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            ) : !selectedDepartment ? (
+              /* Department Selection */
+              <div>
+                <button
+                  onClick={() => setSelectedYear(null)}
+                  className="mb-4 flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  <i className="fas fa-arrow-left"></i>
+                  Back to Year Selection
+                </button>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+                  Select Department - {selectedYear}
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {['BCA', 'BBA', 'B.Com', 'BSc Physics'].map((dept) => (
+                    <motion.button
+                      key={dept}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        setSelectedDepartment(dept)
+                        // Navigate to students page with filters
+                        navigate(`/admin/students?year=${selectedYear}&department=${dept}`)
+                      }}
+                      className="p-6 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <i className="fas fa-building text-3xl mb-2"></i>
+                      <p>{dept}</p>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </motion.div>
+        </div>
+        )}
+      </AnimatePresence>
+
+      {/* Teacher Browse Modal */}
+      <AnimatePresence>
+        {showTeacherModal && (
+          <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowTeacherModal(false)
+            setSelectedDepartment(null)
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-4xl w-full shadow-2xl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Browse Teachers</h2>
+              <button
+                onClick={() => {
+                  setShowTeacherModal(false)
+                  setSelectedDepartment(null)
+                }}
+                className="w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 hover:bg-slate-300 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+              >
+                <i className="fas fa-times text-slate-800 dark:text-white"></i>
+              </button>
+            </div>
+
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Select Department</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {['BCA', 'BBA', 'B.Com', 'BSc Physics'].map((dept) => (
+                <motion.button
+                  key={dept}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setSelectedDepartment(dept)
+                    // Navigate to teachers page with filter
+                    navigate(`/admin/teachers?department=${dept}`)
+                  }}
+                  className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all"
+                >
+                  <i className="fas fa-chalkboard-teacher text-3xl mb-2"></i>
+                  <p>{dept}</p>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

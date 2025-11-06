@@ -237,7 +237,10 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Attendance */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-orange-500/10 dark:hover:bg-orange-500/20 transition-all cursor-pointer">
+        <div 
+          onClick={() => navigate('/teacher/attendance')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-orange-500/10 dark:hover:bg-orange-500/20 transition-all cursor-pointer"
+        >
           <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-calendar-check text-2xl text-orange-500"></i>
           </div>
@@ -249,7 +252,10 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Student List */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer">
+        <div 
+          onClick={() => navigate('/teacher/students')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer"
+        >
           <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-users text-2xl text-red-500"></i>
           </div>
