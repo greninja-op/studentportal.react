@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle'
 import ImageCropper from '../../components/ImageCropper'
 import api from '../../services/api'
 
 export default function AdminStudents() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const user = api.getCurrentUser()
+  
+  // Get filter parameters from URL
+  const urlYear = searchParams.get('year')
+  const urlDepartment = searchParams.get('department')
   const [showAddForm, setShowAddForm] = useState(false)
   const [students, setStudents] = useState([])
+  const [filteredStudents, setFilteredStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -59,9 +65,30 @@ export default function AdminStudents() {
     const response = await api.getStudents()
     if (response.success) {
       setStudents(response.students)
+      filterStudents(response.students)
     }
     setLoading(false)
   }
+  
+  const filterStudents = (studentList) => {
+    let filtered = studentList
+    
+    if (urlYear) {
+      // Extract year number from "1st Year", "2nd Year", etc.
+      const yearNum = parseInt(urlYear.match(/\d+/)[0])
+      filtered = filtered.filter(s => s.year === yearNum)
+    }
+    
+    if (urlDepartment) {
+      filtered = filtered.filter(s => s.department === urlDepartment)
+    }
+    
+    setFilteredStudents(filtered)
+  }
+  
+  useEffect(() => {
+    filterStudents(students)
+  }, [urlYear, urlDepartment, students])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -548,16 +575,42 @@ export default function AdminStudents() {
 
       {/* Students List */}
       <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">All Students</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+            {urlYear || urlDepartment ? 'Filtered Students' : 'All Students'}
+          </h2>
+          {(urlYear || urlDepartment) && (
+            <div className="flex items-center gap-2">
+              {urlYear && (
+                <span className="px-3 py-1 bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-lg font-semibold text-sm">
+                  {urlYear}
+                </span>
+              )}
+              {urlDepartment && (
+                <span className="px-3 py-1 bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-lg font-semibold text-sm">
+                  {urlDepartment}
+                </span>
+              )}
+              <button
+                onClick={() => navigate('/admin/students')}
+                className="px-3 py-1 bg-slate-500/20 text-slate-600 dark:text-slate-400 rounded-lg font-semibold text-sm hover:bg-slate-500/30"
+              >
+                Clear Filters
+              </button>
+            </div>
+          )}
+        </div>
         
         {loading ? (
           <div className="text-center py-12">
             <div className="text-2xl text-slate-800 dark:text-white">Loading...</div>
           </div>
-        ) : students.length === 0 ? (
+        ) : filteredStudents.length === 0 ? (
           <div className="text-center py-12">
             <i className="fas fa-users text-6xl text-slate-400 mb-4"></i>
-            <p className="text-slate-600 dark:text-slate-400">No students found. Add your first student!</p>
+            <p className="text-slate-600 dark:text-slate-400">
+              {urlYear || urlDepartment ? 'No students found matching the filters.' : 'No students found. Add your first student!'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -567,16 +620,18 @@ export default function AdminStudents() {
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Student ID</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Name</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Department</th>
+                  <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Year</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Semester</th>
                   <th className="px-4 py-3 text-left text-slate-700 dark:text-slate-300 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {students.map((student, index) => (
+                {filteredStudents.map((student, index) => (
                   <tr key={index} className="border-b border-slate-200 dark:border-slate-700 hover:bg-indigo-500/10 dark:hover:bg-indigo-500/20 transition-all">
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.student_id}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.full_name}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{student.department}</td>
+                    <td className="px-4 py-3 text-slate-800 dark:text-white">Year {student.year}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">Sem {student.semester}</td>
                     <td className="px-4 py-3">
                       <button 

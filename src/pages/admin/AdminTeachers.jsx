@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle'
 import api from '../../services/api'
 
 export default function AdminTeachers() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const user = api.getCurrentUser()
+  
+  // Get filter parameters from URL
+  const urlDepartment = searchParams.get('department')
+  
   const [showAddForm, setShowAddForm] = useState(false)
   const [teachers, setTeachers] = useState([])
+  const [filteredTeachers, setFilteredTeachers] = useState([])
   const [loading, setLoading] = useState(true)
   
   // Form data
@@ -40,9 +46,24 @@ export default function AdminTeachers() {
     const response = await api.getTeachers()
     if (response.success) {
       setTeachers(response.teachers)
+      filterTeachers(response.teachers)
     }
     setLoading(false)
   }
+  
+  const filterTeachers = (teacherList) => {
+    let filtered = teacherList
+    
+    if (urlDepartment) {
+      filtered = filtered.filter(t => t.department === urlDepartment)
+    }
+    
+    setFilteredTeachers(filtered)
+  }
+  
+  useEffect(() => {
+    filterTeachers(teachers)
+  }, [urlDepartment, teachers])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -299,16 +320,35 @@ export default function AdminTeachers() {
 
       {/* Teachers List */}
       <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">All Teachers</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+            {urlDepartment ? 'Filtered Teachers' : 'All Teachers'}
+          </h2>
+          {urlDepartment && (
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-green-500/20 text-green-600 dark:text-green-400 rounded-lg font-semibold text-sm">
+                {urlDepartment}
+              </span>
+              <button
+                onClick={() => navigate('/admin/teachers')}
+                className="px-3 py-1 bg-slate-500/20 text-slate-600 dark:text-slate-400 rounded-lg font-semibold text-sm hover:bg-slate-500/30"
+              >
+                Clear Filter
+              </button>
+            </div>
+          )}
+        </div>
         
         {loading ? (
           <div className="text-center py-12">
             <div className="text-2xl text-slate-800 dark:text-white">Loading...</div>
           </div>
-        ) : teachers.length === 0 ? (
+        ) : filteredTeachers.length === 0 ? (
           <div className="text-center py-12">
             <i className="fas fa-chalkboard-teacher text-6xl text-slate-400 mb-4"></i>
-            <p className="text-slate-600 dark:text-slate-400">No teachers found. Add your first teacher!</p>
+            <p className="text-slate-600 dark:text-slate-400">
+              {urlDepartment ? 'No teachers found in this department.' : 'No teachers found. Add your first teacher!'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -323,7 +363,7 @@ export default function AdminTeachers() {
                 </tr>
               </thead>
               <tbody>
-                {teachers.map((teacher, index) => (
+                {filteredTeachers.map((teacher, index) => (
                   <tr key={index} className="border-b border-slate-200 dark:border-slate-700 hover:bg-green-500/10 dark:hover:bg-green-500/20 transition-all">
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{teacher.teacher_id}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{teacher.full_name}</td>

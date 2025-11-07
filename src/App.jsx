@@ -11,8 +11,10 @@ import AdminDashboard from './pages/AdminDashboard'
 import TeacherDashboard from './pages/TeacherDashboard'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminTeachers from './pages/admin/AdminTeachers'
+import AdminNotices from './pages/admin/AdminNotices'
 import TeacherAttendance from './pages/TeacherAttendance'
 import TeacherStudentList from './pages/TeacherStudentList'
+import TeacherNotice from './pages/TeacherNotice'
 import api from './services/api'
 
 // Protected Route wrapper
@@ -51,11 +53,13 @@ function App() {
           <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
           <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
+          <Route path="/admin/notices" element={<ProtectedRoute allowedRoles={['admin']}><AdminNotices /></ProtectedRoute>} />
           
           {/* Teacher Routes */}
           <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['staff']}><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/teacher/attendance" element={<ProtectedRoute allowedRoles={['staff']}><TeacherAttendance /></ProtectedRoute>} />
           <Route path="/teacher/students" element={<ProtectedRoute allowedRoles={['staff']}><TeacherStudentList /></ProtectedRoute>} />
+          <Route path="/teacher/notices" element={<ProtectedRoute allowedRoles={['staff']}><TeacherNotice /></ProtectedRoute>} />
         </Routes>
       </AnimatePresence>
     </Router>

@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import Navigation from '../components/Navigation'
 import ThemeToggle from '../components/ThemeToggle'
 import api from '../services/api'
 
-export default function Notice() {
+export default function TeacherNotice() {
   const navigate = useNavigate()
   const [notices, setNotices] = useState([])
   const [loading, setLoading] = useState(true)
   const user = api.getCurrentUser()
 
+  const categories = {
+    general: { label: 'General', icon: 'fa-info-circle', color: 'purple' },
+    academic: { label: 'Academic', icon: 'fa-graduation-cap', color: 'blue' },
+    event: { label: 'Event', icon: 'fa-calendar-alt', color: 'green' },
+    exam: { label: 'Exam', icon: 'fa-file-alt', color: 'orange' },
+    holiday: { label: 'Holiday', icon: 'fa-umbrella-beach', color: 'teal' },
+    sports: { label: 'Sports', icon: 'fa-futbol', color: 'red' }
+  }
+
   useEffect(() => {
-    if (!user) {
+    if (!user || user.role !== 'staff') {
       navigate('/login')
       return
     }
@@ -32,15 +40,6 @@ export default function Notice() {
 
     fetchNotices()
   }, [])
-
-  const categories = {
-    general: { label: 'General', icon: 'fa-info-circle', color: 'purple' },
-    academic: { label: 'Academic', icon: 'fa-graduation-cap', color: 'blue' },
-    event: { label: 'Event', icon: 'fa-calendar-alt', color: 'green' },
-    exam: { label: 'Exam', icon: 'fa-file-alt', color: 'orange' },
-    holiday: { label: 'Holiday', icon: 'fa-umbrella-beach', color: 'teal' },
-    sports: { label: 'Sports', icon: 'fa-futbol', color: 'red' }
-  }
 
   const getCategoryIcon = (category) => {
     return categories[category]?.icon || 'fa-info-circle'
@@ -70,35 +69,45 @@ export default function Notice() {
   }
 
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
-        transition={{ duration: 0.3 }}
-        className="min-h-screen pb-24 px-4 py-6 max-w-5xl mx-auto"
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="min-h-screen pb-24 px-4 py-6 max-w-7xl mx-auto"
+    >
       {/* Top Header */}
       <header className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Notice Board</h1>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/teacher/dashboard')}
+            className="w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all"
+          >
+            <i className="fas fa-arrow-left text-slate-800 dark:text-white"></i>
+          </button>
+          <h1 className="text-3xl font-bold text-slate-800 dark:text-white">Notice Board</h1>
+        </div>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name || 'Student'}</span>
-          {user?.profile_image ? (
-            <img 
-              src={user.profile_image} 
-              alt={user.full_name} 
-              className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
-              {user?.full_name?.charAt(0) || 'S'}
-            </div>
-          )}
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{user?.full_name}</span>
+          <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center text-white">
+            <i className="fas fa-bullhorn text-lg"></i>
+          </div>
         </div>
       </header>
 
-      <p className="text-slate-600 dark:text-slate-400 mb-8">Stay updated with announcements</p>
+      {/* Banner */}
+      <div className="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-2xl p-6 mb-8 text-white shadow-2xl">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+            <i className="fas fa-bullhorn text-3xl"></i>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold">Announcements & Notices</h2>
+            <p className="text-teal-100">Stay updated with important information</p>
+          </div>
+        </div>
+      </div>
 
       {/* Notices */}
       <div className="space-y-6">
@@ -168,8 +177,6 @@ export default function Notice() {
           ))
         )}
       </div>
-      </motion.div>
-      <Navigation />
-    </>
+    </motion.div>
   )
 }

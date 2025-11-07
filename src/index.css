@@ -19,6 +19,33 @@
     transform: translateY(-8px) !important;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
   }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+}
+
+/* Fix select dropdown colors in dark mode */
+select option {
+  background-color: white;
+  color: #1e293b;
+}
+
+.dark select option {
+  background-color: #1f2937;
+  color: #f1f5f9;
+}
+
+select option:checked,
+select option:hover {
+  background-color: #3b82f6 !important;
+  color: white !important;
 }
 
 /* Transition Overlay - 4 Panel Wipe Effect */

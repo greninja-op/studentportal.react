@@ -5,6 +5,27 @@ const API_BASE_URL = 'http://localhost/studentportal-api/api';
 class ApiService {
   // Authentication
   async login(username, password, role) {
+    // MOCK LOGIN - Remove this when backend is ready
+    // For testing purposes, accept any username with password "123"
+    if (password === '123') {
+      const mockUser = {
+        username: username,
+        full_name: username.charAt(0).toUpperCase() + username.slice(1),
+        email: `${username}@university.edu`,
+        role: role,
+        student_id: role === 'student' ? 'S2024001' : null,
+        teacher_id: role === 'staff' ? 'T2024001' : null,
+        department: 'Computer Science',
+        semester: role === 'student' ? '5' : null
+      };
+      
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      return { success: true, user: mockUser };
+    }
+    
+    return { success: false, message: 'Invalid username or password' };
+    
+    /* REAL API CODE - Uncomment when backend is ready
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login.php`, {
         method: 'POST',
@@ -25,6 +46,7 @@ class ApiService {
       console.error('Login error:', error);
       return { success: false, message: 'Network error. Please try again.' };
     }
+    */
   }
 
   // Get current user from localStorage
@@ -114,6 +136,11 @@ class ApiService {
 
   // Get Notices
   async getNotices() {
+    // MOCK DATA - Remove when backend is ready
+    const mockNotices = JSON.parse(localStorage.getItem('notices') || '[]');
+    return { success: true, data: mockNotices };
+    
+    /* REAL API CODE - Uncomment when backend is ready
     try {
       const response = await fetch(`${API_BASE_URL}/notices/get_all.php`);
       const data = await response.json();
@@ -122,6 +149,7 @@ class ApiService {
       console.error('Notices error:', error);
       return { success: false, message: 'Failed to fetch notices' };
     }
+    */
   }
 
   // Admin - Get All Students

@@ -212,7 +212,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Post Notices */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer">
+        <div 
+          onClick={() => navigate('/admin/notices')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer"
+        >
           <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-bullhorn text-2xl text-red-500"></i>
           </div>
