@@ -22,16 +22,16 @@ export default function TeacherStudentList() {
       profileImage: null,
       attendance: 87.5,
       cgpa: 8.4,
-      courses: ['CS101', 'CS202', 'MA101'],
+      courses: ['Computer Networks', 'IT and Environment', 'Java Programming Using Linux', 'Open Course'],
       address: '123 MG Road, Bangalore, Karnataka',
       dateOfBirth: '2004-05-15',
       guardianName: 'Rajesh Sharma',
       guardianPhone: '+91 98765 43211',
       bloodGroup: 'O+',
       recentMarks: [
-        { subject: 'CS101 - Linux', marks: 85, total: 100 },
-        { subject: 'CS202 - Database', marks: 78, total: 100 },
-        { subject: 'MA101 - Mathematics', marks: 92, total: 100 }
+        { subject: 'Computer Networks', marks: 85, total: 100 },
+        { subject: 'Java Programming Using Linux', marks: 78, total: 100 },
+        { subject: 'IT and Environment', marks: 92, total: 100 }
       ]
     },
     {
@@ -46,16 +46,16 @@ export default function TeacherStudentList() {
       profileImage: null,
       attendance: 92.3,
       cgpa: 9.1,
-      courses: ['CS101', 'CS202', 'MA101'],
+      courses: ['Computer Networks', 'Java Programming Using Linux', 'Cloud Computing'],
       address: '456 Park Street, Mumbai, Maharashtra',
       dateOfBirth: '2004-08-22',
       guardianName: 'Amit Patel',
       guardianPhone: '+91 98765 43213',
       bloodGroup: 'A+',
       recentMarks: [
-        { subject: 'CS101 - Linux', marks: 95, total: 100 },
-        { subject: 'CS202 - Database', marks: 88, total: 100 },
-        { subject: 'MA101 - Mathematics', marks: 90, total: 100 }
+        { subject: 'Computer Networks', marks: 95, total: 100 },
+        { subject: 'Java Programming Using Linux', marks: 88, total: 100 },
+        { subject: 'Cloud Computing', marks: 90, total: 100 }
       ]
     },
     {
@@ -70,15 +70,15 @@ export default function TeacherStudentList() {
       profileImage: null,
       attendance: 78.9,
       cgpa: 7.8,
-      courses: ['CS101', 'CS301'],
+      courses: ['Operating Systems', 'Computer Graphics'],
       address: '789 Lake View, Chennai, Tamil Nadu',
       dateOfBirth: '2004-03-10',
       guardianName: 'Suresh Kumar',
       guardianPhone: '+91 98765 43215',
       bloodGroup: 'B+',
       recentMarks: [
-        { subject: 'CS101 - Linux', marks: 72, total: 100 },
-        { subject: 'CS301 - Data Structures', marks: 80, total: 100 }
+        { subject: 'Operating Systems', marks: 72, total: 100 },
+        { subject: 'Computer Graphics', marks: 80, total: 100 }
       ]
     },
     {
@@ -93,16 +93,16 @@ export default function TeacherStudentList() {
       profileImage: null,
       attendance: 95.2,
       cgpa: 9.3,
-      courses: ['CS101', 'CS202', 'MA101'],
+      courses: ['Web Programming Using PHP', 'Design and Analysis of Algorithms', 'System Analysis and Software Engineering'],
       address: '321 Gandhi Nagar, Delhi',
       dateOfBirth: '2004-11-05',
       guardianName: 'Vikram Singh',
       guardianPhone: '+91 98765 43217',
       bloodGroup: 'AB+',
       recentMarks: [
-        { subject: 'CS101 - Linux', marks: 98, total: 100 },
-        { subject: 'CS202 - Database', marks: 94, total: 100 },
-        { subject: 'MA101 - Mathematics', marks: 96, total: 100 }
+        { subject: 'Web Programming Using PHP', marks: 98, total: 100 },
+        { subject: 'Design and Analysis of Algorithms', marks: 94, total: 100 },
+        { subject: 'System Analysis and Software Engineering', marks: 96, total: 100 }
       ]
     },
     {
@@ -117,24 +117,33 @@ export default function TeacherStudentList() {
       profileImage: null,
       attendance: 82.1,
       cgpa: 8.0,
-      courses: ['CS101', 'CS301'],
+      courses: ['Data Mining', 'Mobile Application Development Android'],
       address: '654 Tech Park, Hyderabad, Telangana',
       dateOfBirth: '2004-07-18',
       guardianName: 'Ramesh Reddy',
       guardianPhone: '+91 98765 43219',
       bloodGroup: 'O-',
       recentMarks: [
-        { subject: 'CS101 - Linux', marks: 82, total: 100 },
-        { subject: 'CS301 - Data Structures', marks: 79, total: 100 }
+        { subject: 'Data Mining', marks: 82, total: 100 },
+        { subject: 'Mobile Application Development Android', marks: 79, total: 100 }
       ]
     }
   ])
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterDepartment, setFilterDepartment] = useState('all')
-  const [filterSection, setFilterSection] = useState('all')
+  const [filterBatch, setFilterBatch] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [showFullDetails, setShowFullDetails] = useState(false)
+
+  // Get teacher's department from user data
+  const teacherDepartment = user?.department || 'Computer Science'
+
+  // Calculate admission year from semester (assuming current year is 2024)
+  const getAdmissionYear = (semester) => {
+    const currentYear = 2024
+    const yearsPassed = Math.floor((semester - 1) / 2)
+    return currentYear - yearsPassed
+  }
 
   useEffect(() => {
     if (!user || user.role !== 'staff') {
@@ -142,13 +151,19 @@ export default function TeacherStudentList() {
     }
   }, [])
 
+  // Filter students by teacher's department first, then by batch
   const filteredStudents = students.filter(student => {
+    // Only show students from teacher's department
+    if (student.department !== teacherDepartment) return false
+    
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.email.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesDepartment = filterDepartment === 'all' || student.department === filterDepartment
-    const matchesSection = filterSection === 'all' || student.section === filterSection
-    return matchesSearch && matchesDepartment && matchesSection
+    
+    const studentBatch = getAdmissionYear(student.semester)
+    const matchesBatch = filterBatch === 'all' || studentBatch === parseInt(filterBatch)
+    
+    return matchesSearch && matchesBatch
   })
 
   const getAttendanceColor = (percentage) => {
@@ -199,20 +214,20 @@ export default function TeacherStudentList() {
               <i className="fas fa-users text-3xl"></i>
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Enrolled Students</h2>
-              <p className="text-red-100">View and manage student information</p>
+              <h2 className="text-2xl font-bold">My Students - {teacherDepartment}</h2>
+              <p className="text-red-100">Students in your department</p>
             </div>
           </div>
           <div className="text-right">
             <p className="text-5xl font-bold">{filteredStudents.length}</p>
-            <p className="text-red-100">Total Students</p>
+            <p className="text-red-100">Students</p>
           </div>
         </div>
       </div>
 
       {/* Search and Filters */}
       <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Search */}
           <div className="relative">
             <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
@@ -225,28 +240,17 @@ export default function TeacherStudentList() {
             />
           </div>
 
-          {/* Department Filter */}
+          {/* Batch/Admission Year Filter */}
           <select
-            value={filterDepartment}
-            onChange={(e) => setFilterDepartment(e.target.value)}
+            value={filterBatch}
+            onChange={(e) => setFilterBatch(e.target.value)}
             className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
           >
-            <option value="all">All Departments</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Mechanical">Mechanical</option>
-          </select>
-
-          {/* Section Filter */}
-          <select
-            value={filterSection}
-            onChange={(e) => setFilterSection(e.target.value)}
-            className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            <option value="all">All Sections</option>
-            <option value="A">Section A</option>
-            <option value="B">Section B</option>
-            <option value="C">Section C</option>
+            <option value="all">All Batches</option>
+            <option value="2024">2024 Batch (2024-2028)</option>
+            <option value="2023">2023 Batch (2023-2027)</option>
+            <option value="2022">2022 Batch (2022-2026)</option>
+            <option value="2021">2021 Batch (2021-2025)</option>
           </select>
         </div>
       </div>
@@ -283,7 +287,7 @@ export default function TeacherStudentList() {
               </div>
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <i className="fas fa-layer-group w-4"></i>
-                <span>Semester {student.semester} - Section {student.section}</span>
+                <span>Semester {student.semester}</span>
               </div>
             </div>
 

@@ -188,7 +188,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Manage Courses */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-purple-500/10 dark:hover:bg-purple-500/20 transition-all cursor-pointer">
+        <div 
+          onClick={() => navigate('/admin/courses')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-purple-500/10 dark:hover:bg-purple-500/20 transition-all cursor-pointer"
+        >
           <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-book text-2xl text-purple-500"></i>
           </div>
@@ -227,7 +230,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Fee Management */}
-        <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-teal-500/10 dark:hover:bg-teal-500/20 transition-all cursor-pointer">
+        <div 
+          onClick={() => navigate('/admin/fee-management')}
+          className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg hover:bg-teal-500/10 dark:hover:bg-teal-500/20 transition-all cursor-pointer"
+        >
           <div className="w-12 h-12 rounded-full bg-teal-500/20 flex items-center justify-center mb-4">
             <i className="fas fa-dollar-sign text-2xl text-teal-500"></i>
           </div>

@@ -8,14 +8,14 @@ export default function TeacherAttendance() {
   const navigate = useNavigate()
   const user = api.getCurrentUser()
   
-  // Mock data for teacher's courses
+  // Mock data for teacher's courses (BCA Subjects)
   const [courses] = useState([
-    { id: 1, code: 'CS101', name: 'Introduction to Linux', section: 'A', students: 45 },
-    { id: 2, code: 'CS202', name: 'Database Management', section: 'B', students: 38 },
-    { id: 3, code: 'MA101', name: 'Mathematics I', section: 'A', students: 52 },
-    { id: 4, code: 'CS301', name: 'Data Structures', section: 'C', students: 41 },
-    { id: 5, code: 'EN101', name: 'English Communication', section: 'B', students: 48 },
-    { id: 6, code: 'PH101', name: 'Physics I', section: 'A', students: 44 }
+    { id: 1, code: 'BCA401', name: 'Linux Administration', students: 45 },
+    { id: 2, code: 'BCA201', name: 'Database Management Systems', students: 38 },
+    { id: 3, code: 'BCA301', name: 'Data Structure Using C++', students: 52 },
+    { id: 4, code: 'BCA501', name: 'Java Programming Using Linux', students: 41 },
+    { id: 5, code: 'BCA601', name: 'Cloud Computing', students: 48 },
+    { id: 6, code: 'BCA501', name: 'Computer Networks', students: 44 }
   ])
 
   // Mock students data for selected course
@@ -144,8 +144,8 @@ export default function TeacherAttendance() {
           {selectedCourse && (
             <div className="text-right">
               <p className="text-sm text-orange-100">Selected Course</p>
-              <p className="text-xl font-bold">{selectedCourse.code} - {selectedCourse.name}</p>
-              <p className="text-orange-100">Section {selectedCourse.section}</p>
+              <p className="text-xl font-bold">{selectedCourse.name}</p>
+              <p className="text-orange-100 text-sm">{selectedCourse.code}</p>
             </div>
           )}
         </div>
@@ -168,20 +168,14 @@ export default function TeacherAttendance() {
                     <i className="fas fa-book text-2xl text-orange-500"></i>
                   </div>
                   <span className="px-3 py-1 bg-orange-500/20 text-orange-600 dark:text-orange-400 rounded-full text-sm font-semibold">
-                    Section {course.section}
+                    {course.students} Students
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{course.code}</h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-4">{course.name}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                    <i className="fas fa-users"></i>
-                    <span>{course.students} Students</span>
-                  </div>
-                  <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all">
-                    Select
-                  </button>
-                </div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{course.name}</h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm">{course.code}</p>
+                <button className="w-full mt-4 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all">
+                  Select Course
+                </button>
               </motion.div>
             ))}
           </div>

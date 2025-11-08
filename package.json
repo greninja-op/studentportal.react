@@ -8,6 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3",
     "liquid-glass-react": "^1.1.1",
     "motion": "^11.15.0",
     "react": "^19.0.0",

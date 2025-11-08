@@ -15,7 +15,11 @@ export default function AdminTeachers() {
   const [showAddForm, setShowAddForm] = useState(false)
   const [teachers, setTeachers] = useState([])
   const [filteredTeachers, setFilteredTeachers] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [editingTeacher, setEditingTeacher] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [teacherToDelete, setTeacherToDelete] = useState(null)
   
   // Form data
   const [formData, setFormData] = useState({
@@ -74,11 +78,15 @@ export default function AdminTeachers() {
     e.preventDefault()
     setLoading(true)
     
-    const response = await api.addTeacher(formData)
+    const response = isEditMode 
+      ? await api.updateTeacher(editingTeacher.teacher_id, formData)
+      : await api.addTeacher(formData)
     
     if (response.success) {
-      alert('Teacher added successfully!')
+      alert(isEditMode ? 'Teacher updated successfully!' : 'Teacher added successfully!')
       setShowAddForm(false)
+      setIsEditMode(false)
+      setEditingTeacher(null)
       setFormData({
         teacher_id: '',
         full_name: '',
@@ -90,12 +98,71 @@ export default function AdminTeachers() {
         phone: '',
         qualification: 'Ph.D.'
       })
-      // Refresh the teachers list
       fetchTeachers()
     } else {
-      alert(response.error || 'Failed to add teacher')
+      alert(response.error || (isEditMode ? 'Failed to update teacher' : 'Failed to add teacher'))
       setLoading(false)
     }
+  }
+
+  const handleEdit = (teacher) => {
+    setIsEditMode(true)
+    setEditingTeacher(teacher)
+    setFormData({
+      teacher_id: teacher.teacher_id,
+      full_name: teacher.full_name,
+      username: teacher.username || '',
+      email: teacher.email || '',
+      password: '',
+      department: teacher.department,
+      specialization: teacher.specialization || '',
+      phone: teacher.phone || '',
+      qualification: teacher.qualification || 'Ph.D.'
+    })
+    setShowAddForm(true)
+  }
+
+  const handleDelete = (teacherId) => {
+    setTeacherToDelete(teacherId)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDelete = async () => {
+    setLoading(true)
+    setShowDeleteModal(false)
+    
+    const response = await api.deleteTeacher(teacherToDelete)
+    
+    if (response.success) {
+      alert('Teacher deleted successfully!')
+      fetchTeachers()
+    } else {
+      alert(response.error || 'Failed to delete teacher')
+    }
+    setLoading(false)
+    setTeacherToDelete(null)
+  }
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false)
+    setTeacherToDelete(null)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditMode(false)
+    setEditingTeacher(null)
+    setShowAddForm(false)
+    setFormData({
+      teacher_id: '',
+      full_name: '',
+      username: '',
+      email: '',
+      password: '',
+      department: 'Computer Science',
+      specialization: '',
+      phone: '',
+      qualification: 'Ph.D.'
+    })
   }
 
   const handleLogout = () => {
@@ -156,7 +223,9 @@ export default function AdminTeachers() {
           exit={{ opacity: 0, height: 0 }}
           className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6"
         >
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Add New Teacher</h2>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">
+            {isEditMode ? 'Edit Teacher' : 'Add New Teacher'}
+          </h2>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Teacher ID */}
             <div>
@@ -305,14 +374,24 @@ export default function AdminTeachers() {
             </div>
 
             {/* Submit Button */}
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 flex gap-4">
               <button
                 type="submit"
-                className="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                className="flex-1 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
               >
                 <i className="fas fa-save mr-2"></i>
-                Add Teacher
+                {isEditMode ? 'Update Teacher' : 'Add Teacher'}
               </button>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="flex-1 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                >
+                  <i className="fas fa-times mr-2"></i>
+                  Cancel
+                </button>
+              )}
             </div>
           </form>
         </motion.div>
@@ -370,10 +449,16 @@ export default function AdminTeachers() {
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{teacher.department}</td>
                     <td className="px-4 py-3 text-slate-800 dark:text-white">{teacher.qualification}</td>
                     <td className="px-4 py-3">
-                      <button className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mr-2 transition-all">
+                      <button 
+                        onClick={() => handleEdit(teacher)}
+                        className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mr-2 transition-all"
+                      >
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
+                      <button 
+                        onClick={() => handleDelete(teacher.teacher_id)}
+                        className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                      >
                         <i className="fas fa-trash"></i>
                       </button>
                     </td>
@@ -384,6 +469,45 @@ export default function AdminTeachers() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl border border-red-200 dark:border-red-900"
+          >
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
+                <i className="fas fa-exclamation-triangle text-3xl text-red-600 dark:text-red-400"></i>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">
+                Delete Teacher
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300 mb-6">
+                Are you sure you want to delete this teacher? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-slate-800 dark:text-white rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                >
+                  <i className="fas fa-trash mr-2"></i>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   )
 }

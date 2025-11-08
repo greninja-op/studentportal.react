@@ -9,6 +9,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [notices, setNotices] = useState([])
   const user = api.getCurrentUser()
 
   useEffect(() => {
@@ -31,6 +32,15 @@ export default function Dashboard() {
     }
 
     fetchStats()
+    
+    // Load notices from localStorage
+    const loadNotices = () => {
+      const storedNotices = JSON.parse(localStorage.getItem('notices') || '[]')
+      // Get latest 3 notices
+      setNotices(storedNotices.slice(0, 3))
+    }
+    
+    loadNotices()
   }, [])
 
   if (loading) {
@@ -185,56 +195,58 @@ export default function Dashboard() {
         <div className="space-y-4">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-4">Notifications</h3>
           
-          <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-lg hover:bg-blue-500/10 dark:hover:bg-blue-500/20 transition-all cursor-pointer">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white flex-shrink-0">
-                <i className="fas fa-calendar-alt"></i>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-slate-800 dark:text-white mb-1">
-                  Annual Tech Fest "Innovate 2024"
-                </h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Join us for a day of innovation and technology. Starts tomorrow at 10 AM in the main auditorium.
-                </p>
-              </div>
-              <i className="fas fa-chevron-right text-slate-400"></i>
+          {notices.length === 0 ? (
+            <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg text-center">
+              <i className="fas fa-bell-slash text-4xl text-slate-400 mb-3"></i>
+              <p className="text-slate-600 dark:text-slate-400">No notifications yet</p>
             </div>
-          </div>
-
-          <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-lg hover:bg-red-500/10 dark:hover:bg-red-500/20 transition-all cursor-pointer">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white flex-shrink-0">
-                <i className="fas fa-exclamation-circle"></i>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-slate-800 dark:text-white mb-1">
-                  Tuition Fee Payment Reminder
-                </h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Your tuition fee for the upcoming semester is due in 3 days. Please pay to avoid late fees.
-                </p>
-              </div>
-              <i className="fas fa-chevron-right text-slate-400"></i>
-            </div>
-          </div>
-
-          <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-lg hover:bg-green-500/10 dark:hover:bg-green-500/20 transition-all cursor-pointer">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white flex-shrink-0">
-                <i className="fas fa-book-open"></i>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-slate-800 dark:text-white mb-1">
-                  Mid-term Exam Schedule
-                </h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  The schedule for mid-term exams has been released. Check your portal for details.
-                </p>
-              </div>
-              <i className="fas fa-chevron-right text-slate-400"></i>
-            </div>
-          </div>
+          ) : (
+            notices.map((notice, index) => {
+              // Category-based icons and colors (matching Notice Board)
+              const categoryStyles = {
+                general: { icon: 'fas fa-info-circle', bgColor: 'bg-purple-500', hoverColor: 'hover:bg-purple-500/10 dark:hover:bg-purple-500/20' },
+                academic: { icon: 'fas fa-graduation-cap', bgColor: 'bg-blue-500', hoverColor: 'hover:bg-blue-500/10 dark:hover:bg-blue-500/20' },
+                event: { icon: 'fas fa-calendar-alt', bgColor: 'bg-green-500', hoverColor: 'hover:bg-green-500/10 dark:hover:bg-green-500/20' },
+                exam: { icon: 'fas fa-file-alt', bgColor: 'bg-orange-500', hoverColor: 'hover:bg-orange-500/10 dark:hover:bg-orange-500/20' },
+                holiday: { icon: 'fas fa-umbrella-beach', bgColor: 'bg-teal-500', hoverColor: 'hover:bg-teal-500/10 dark:hover:bg-teal-500/20' },
+                sports: { icon: 'fas fa-futbol', bgColor: 'bg-red-500', hoverColor: 'hover:bg-red-500/10 dark:hover:bg-red-500/20' }
+              }
+              
+              // Get category style or default to general
+              const style = categoryStyles[notice.category] || categoryStyles.general
+              const iconClass = style.icon
+              const bgColor = style.bgColor
+              const hoverColor = style.hoverColor
+              
+              // Truncate content for preview
+              const contentPreview = notice.content.length > 100 
+                ? notice.content.substring(0, 100) + '...' 
+                : notice.content
+              
+              return (
+                <div 
+                  key={index}
+                  onClick={() => navigate('/notice')}
+                  className={`bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-lg ${hoverColor} transition-all cursor-pointer`}
+                >
+                  <div className="flex gap-3">
+                    <div className={`w-10 h-10 rounded-full ${bgColor} flex items-center justify-center text-white flex-shrink-0`}>
+                      <i className={iconClass}></i>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-slate-800 dark:text-white mb-1 truncate">
+                        {notice.title}
+                      </h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                        {contentPreview}
+                      </p>
+                    </div>
+                    <i className="fas fa-chevron-right text-slate-400 flex-shrink-0"></i>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
       </motion.div>

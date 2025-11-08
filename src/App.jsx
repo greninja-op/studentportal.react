@@ -12,9 +12,12 @@ import TeacherDashboard from './pages/TeacherDashboard'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminTeachers from './pages/admin/AdminTeachers'
 import AdminNotices from './pages/admin/AdminNotices'
+import AdminFeeManagement from './pages/admin/AdminFeeManagement'
+import AdminCourses from './pages/admin/AdminCourses'
 import TeacherAttendance from './pages/TeacherAttendance'
 import TeacherStudentList from './pages/TeacherStudentList'
 import TeacherNotice from './pages/TeacherNotice'
+import TeacherMarks from './pages/TeacherMarks'
 import api from './services/api'
 
 // Protected Route wrapper
@@ -54,12 +57,15 @@ function App() {
           <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
           <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
           <Route path="/admin/notices" element={<ProtectedRoute allowedRoles={['admin']}><AdminNotices /></ProtectedRoute>} />
+          <Route path="/admin/fee-management" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeManagement /></ProtectedRoute>} />
+          <Route path="/admin/courses" element={<ProtectedRoute allowedRoles={['admin']}><AdminCourses /></ProtectedRoute>} />
           
           {/* Teacher Routes */}
           <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['staff']}><TeacherDashboard /></ProtectedRoute>} />
           <Route path="/teacher/attendance" element={<ProtectedRoute allowedRoles={['staff']}><TeacherAttendance /></ProtectedRoute>} />
           <Route path="/teacher/students" element={<ProtectedRoute allowedRoles={['staff']}><TeacherStudentList /></ProtectedRoute>} />
           <Route path="/teacher/notices" element={<ProtectedRoute allowedRoles={['staff']}><TeacherNotice /></ProtectedRoute>} />
+          <Route path="/teacher/marks" element={<ProtectedRoute allowedRoles={['staff']}><TeacherMarks /></ProtectedRoute>} />
         </Routes>
       </AnimatePresence>
     </Router>

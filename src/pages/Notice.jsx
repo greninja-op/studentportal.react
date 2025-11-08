@@ -114,12 +114,10 @@ export default function Notice() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg overflow-hidden hover:shadow-xl transition-all ${
-                notice.image_url ? 'flex flex-col md:flex-row' : ''
-              }`}
+              className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg overflow-hidden hover:shadow-xl transition-all"
             >
               {/* Notice Content */}
-              <div className={`p-6 ${notice.image_url ? 'md:flex-1' : 'w-full'}`}>
+              <div className="p-6 w-full">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -152,18 +150,24 @@ export default function Notice() {
 
                 {/* Content */}
                 <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{notice.content}</p>
+                
+                {/* Pay Now Button for Fee Notices */}
+                {notice.feeDetails && (
+                  <div className="mt-6 pt-6 border-t border-slate-300 dark:border-slate-600">
+                    <button
+                      onClick={() => navigate('/payments')}
+                      className="w-full py-4 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-bold text-lg rounded-xl shadow-lg transition-all flex items-center justify-center gap-3"
+                    >
+                      <i className="fas fa-credit-card text-xl"></i>
+                      Pay Now - ₹{notice.feeDetails.amount}
+                    </button>
+                    <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-3">
+                      <i className="fas fa-info-circle mr-1"></i>
+                      Click to proceed to payment page
+                    </p>
+                  </div>
+                )}
               </div>
-
-              {/* Image (if exists) */}
-              {notice.image_url && (
-                <div className="md:w-80 md:flex-shrink-0">
-                  <img
-                    src={notice.image_url}
-                    alt={notice.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
             </motion.div>
           ))
         )}

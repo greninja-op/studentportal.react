@@ -81,9 +81,6 @@ export default function Subjects() {
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
-                <div className="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-full text-sm font-semibold mb-2">
-                  {subject.subject_code}
-                </div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">
                   {subject.subject_name}
                 </h3>
