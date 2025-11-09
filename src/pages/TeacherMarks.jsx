@@ -18,6 +18,7 @@ export default function TeacherMarks() {
   const [marks, setMarks] = useState({})
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [availableSubjects, setAvailableSubjects] = useState([])
+  const [submissions, setSubmissions] = useState([])
 
   useEffect(() => {
     if (!user || user.role !== 'staff') {
@@ -27,6 +28,12 @@ export default function TeacherMarks() {
     
     // Load students from teacher's department
     loadStudents()
+    
+    // Load submissions from localStorage
+    const savedSubmissions = localStorage.getItem('teacherMarksSubmissions')
+    if (savedSubmissions) {
+      setSubmissions(JSON.parse(savedSubmissions))
+    }
   }, [])
 
   const loadStudents = () => {
@@ -195,12 +202,23 @@ export default function TeacherMarks() {
   ]
 
   // Get teacher's department (from user object)
-  const teacherDepartment = user?.department || 'BCA'
+  // Map department names to database keys
+  const departmentMap = {
+    'Computer Science': 'BCA',
+    'Business Administration': 'BBA',
+    'Commerce': 'B.Com',
+    'BCA': 'BCA',
+    'BBA': 'BBA',
+    'B.Com': 'B.Com'
+  }
+  const teacherDepartment = departmentMap[user?.department] || 'BCA'
 
   // Update available subjects when semester changes
   useEffect(() => {
     if (selectedSemester && teacherDepartment) {
-      const subjects = subjectDatabase[teacherDepartment]?.[selectedSemester] || []
+      const semesterNum = parseInt(selectedSemester)
+      const deptData = subjectDatabase[teacherDepartment]
+      const subjects = deptData ? (deptData[semesterNum] || []) : []
       setAvailableSubjects(subjects)
     }
   }, [selectedSemester, teacherDepartment])
@@ -230,16 +248,33 @@ export default function TeacherMarks() {
 
   const handleSubmit = () => {
     // Save marks to localStorage or API
+    const subjectLabel = availableSubjects.find(s => s.value === selectedSubject)?.label || selectedSubject
+    const examLabel = examTypes.find(e => e.value === examType)?.label || examType
+    
     const marksData = {
+      id: Date.now(),
       examType,
+      examLabel,
       subject: selectedSubject,
+      subjectLabel,
+      semester: selectedSemester,
       maxMarks,
       marks,
+      studentCount: Object.keys(marks).length,
       submittedBy: user.full_name,
       submittedAt: new Date().toISOString()
     }
     
     console.log('Submitting marks:', marksData)
+    
+    // Add to submissions history
+    setSubmissions(prev => {
+      const updated = [marksData, ...prev]
+      // Save to localStorage
+      localStorage.setItem('teacherMarksSubmissions', JSON.stringify(updated))
+      return updated
+    })
+    
     alert('✅ Marks submitted successfully!')
     setShowModal(false)
     resetForm()
@@ -300,19 +335,52 @@ export default function TeacherMarks() {
         {/* Recent Marks History */}
         <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg">
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4">Recent Submissions</h2>
-          <p className="text-slate-600 dark:text-slate-400">No marks submitted yet</p>
+          
+          {submissions.length === 0 ? (
+            <p className="text-slate-600 dark:text-slate-400">No marks submitted yet</p>
+          ) : (
+            <div className="space-y-4">
+              {submissions.map((submission) => (
+                <div key={submission.id} className="bg-white/50 dark:bg-gray-700/50 rounded-xl p-4 border border-slate-200 dark:border-slate-600">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-slate-800 dark:text-white text-lg">
+                        {submission.examLabel}
+                      </h3>
+                      <p className="text-slate-600 dark:text-slate-400 mt-1">
+                        <i className="fas fa-book mr-2"></i>
+                        {submission.subjectLabel} - Semester {submission.semester}
+                      </p>
+                      <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+                        <i className="fas fa-users mr-2"></i>
+                        {submission.studentCount} students • Max Marks: {submission.maxMarks}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {new Date(submission.submittedAt).toLocaleDateString()}
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {new Date(submission.submittedAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.div>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-4xl w-full my-8 shadow-2xl"
+            className="bg-white dark:bg-gray-800 rounded-2xl max-w-4xl w-full my-8 shadow-2xl min-h-[600px] max-h-[90vh] flex flex-col"
           >
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center p-8 pb-4">
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Add Marks</h2>
               <button
                 onClick={() => setShowModal(false)}
@@ -321,6 +389,8 @@ export default function TeacherMarks() {
                 <i className="fas fa-times"></i>
               </button>
             </div>
+            
+            <div className="flex-1 overflow-y-auto px-8 pb-8">
 
             {/* Step 1: Select Exam Type */}
             {!examType && (
@@ -437,7 +507,7 @@ export default function TeacherMarks() {
 
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg mb-4">
                   <p className="text-slate-800 dark:text-white font-semibold">
-                    {examTypes.find(e => e.value === examType)?.label} - {subjects.find(s => s.value === selectedSubject)?.label}
+                    {examTypes.find(e => e.value === examType)?.label} - {availableSubjects.find(s => s.value === selectedSubject)?.label}
                   </p>
                   <p className="text-slate-600 dark:text-slate-400 text-sm">Maximum Marks: {maxMarks}</p>
                 </div>
@@ -487,7 +557,7 @@ export default function TeacherMarks() {
 
                 <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg mb-4">
                   <p className="text-slate-800 dark:text-white font-semibold">
-                    Semester Exam - {subjects.find(s => s.value === selectedSubject)?.label}
+                    Semester Exam - {availableSubjects.find(s => s.value === selectedSubject)?.label}
                   </p>
                   <p className="text-slate-600 dark:text-slate-400 text-sm">Select a student to enter marks</p>
                 </div>
@@ -526,6 +596,7 @@ export default function TeacherMarks() {
                 onBack={() => setSelectedStudent(null)}
               />
             )}
+            </div>
           </motion.div>
         </div>
       )}

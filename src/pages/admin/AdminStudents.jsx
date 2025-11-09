@@ -3,6 +3,8 @@ import { motion } from 'motion/react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle'
 import ImageCropper from '../../components/ImageCropper'
+import AnimatedDatePicker from '../../components/AnimatedDatePicker'
+import CustomSelect from '../../components/CustomSelect'
 import api from '../../services/api'
 
 export default function AdminStudents() {
@@ -34,7 +36,7 @@ export default function AdminStudents() {
     username: '',
     email: '',
     password: '',
-    department: 'Computer Science',
+    department: 'BCA',
     semester: '1',
     year: new Date().getFullYear(),
     phone: '',
@@ -42,8 +44,12 @@ export default function AdminStudents() {
     address: ''
   })
 
-  const departments = ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil']
-  const semesters = ['1', '2', '3', '4', '5', '6', '7', '8']
+  const departments = ['BCA', 'BBA', 'B.Com']
+  const semesters = ['1', '2', '3', '4', '5', '6']
+  
+  // Convert to options format for CustomSelect
+  const departmentOptions = departments.map(dept => ({ value: dept, label: dept }))
+  const semesterOptions = semesters.map(sem => ({ value: sem, label: `Semester ${sem}` }))
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type })
@@ -159,7 +165,7 @@ export default function AdminStudents() {
       username: '',
       email: '',
       password: '',
-      department: 'Computer Science',
+      department: 'BCA',
       semester: '1',
       year: new Date().getFullYear(),
       phone: '',
@@ -228,7 +234,7 @@ export default function AdminStudents() {
         username: '',
         email: '',
         password: '',
-        department: 'Computer Science',
+        department: 'BCA',
         semester: '1',
         year: new Date().getFullYear(),
         phone: '',
@@ -437,40 +443,26 @@ export default function AdminStudents() {
             </div>
 
             {/* Department */}
-            <div>
-              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
-                Department <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
-              >
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              name="department"
+              value={formData.department}
+              onChange={handleInputChange}
+              options={departmentOptions}
+              label={<>Department <span className="text-red-500">*</span></>}
+              placeholder="Select department"
+              icon="fas fa-building"
+            />
 
             {/* Semester */}
-            <div>
-              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
-                Semester <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="semester"
-                value={formData.semester}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
-              >
-                {semesters.map(sem => (
-                  <option key={sem} value={sem}>Semester {sem}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              name="semester"
+              value={formData.semester}
+              onChange={handleInputChange}
+              options={semesterOptions}
+              label={<>Semester <span className="text-red-500">*</span></>}
+              placeholder="Select semester"
+              icon="fas fa-calendar-alt"
+            />
 
             {/* Year */}
             <div>
@@ -505,18 +497,12 @@ export default function AdminStudents() {
             </div>
 
             {/* Date of Birth */}
-            <div>
-              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
-              />
-            </div>
+            <AnimatedDatePicker
+              label="Date of Birth"
+              name="date_of_birth"
+              value={formData.date_of_birth}
+              onChange={handleInputChange}
+            />
 
             {/* Address */}
             <div className="md:col-span-2">

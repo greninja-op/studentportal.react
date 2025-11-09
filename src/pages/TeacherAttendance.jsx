@@ -8,29 +8,39 @@ export default function TeacherAttendance() {
   const navigate = useNavigate()
   const user = api.getCurrentUser()
   
-  // Mock data for teacher's courses (BCA Subjects)
-  const [courses] = useState([
-    { id: 1, code: 'BCA401', name: 'Linux Administration', students: 45 },
-    { id: 2, code: 'BCA201', name: 'Database Management Systems', students: 38 },
-    { id: 3, code: 'BCA301', name: 'Data Structure Using C++', students: 52 },
-    { id: 4, code: 'BCA501', name: 'Java Programming Using Linux', students: 41 },
-    { id: 5, code: 'BCA601', name: 'Cloud Computing', students: 48 },
-    { id: 6, code: 'BCA501', name: 'Computer Networks', students: 44 }
-  ])
-
-  // Mock students data for selected course
-  const [students] = useState([
-    { id: 1, rollNo: 'CS2023001', name: 'Aarav Sharma', email: 'aarav@university.edu' },
-    { id: 2, rollNo: 'CS2023002', name: 'Diya Patel', email: 'diya@university.edu' },
-    { id: 3, rollNo: 'CS2023003', name: 'Arjun Kumar', email: 'arjun@university.edu' },
-    { id: 4, rollNo: 'CS2023004', name: 'Ananya Singh', email: 'ananya@university.edu' },
-    { id: 5, rollNo: 'CS2023005', name: 'Vihaan Reddy', email: 'vihaan@university.edu' },
-    { id: 6, rollNo: 'CS2023006', name: 'Ishita Gupta', email: 'ishita@university.edu' },
-    { id: 7, rollNo: 'CS2023007', name: 'Aditya Verma', email: 'aditya@university.edu' },
-    { id: 8, rollNo: 'CS2023008', name: 'Saanvi Joshi', email: 'saanvi@university.edu' },
-    { id: 9, rollNo: 'CS2023009', name: 'Reyansh Mehta', email: 'reyansh@university.edu' },
-    { id: 10, rollNo: 'CS2023010', name: 'Myra Desai', email: 'myra@university.edu' }
-  ])
+  // Get teacher's department
+  const teacherDepartment = user?.department || 'BCA'
+  
+  // Subject database by department
+  const subjectDatabase = {
+    'BCA': [
+      { id: 1, code: 'BCA401', name: 'Linux Administration' },
+      { id: 2, code: 'BCA201', name: 'Database Management Systems' },
+      { id: 3, code: 'BCA301', name: 'Data Structure Using C++' },
+      { id: 4, code: 'BCA501', name: 'Java Programming Using Linux' },
+      { id: 5, code: 'BCA601', name: 'Cloud Computing' },
+      { id: 6, code: 'BCA501', name: 'Computer Networks' }
+    ],
+    'BBA': [
+      { id: 1, code: 'BBA301', name: 'Business Laws' },
+      { id: 2, code: 'BBA302', name: 'Human Resource Management' },
+      { id: 3, code: 'BBA303', name: 'Marketing Management' },
+      { id: 4, code: 'BBA401', name: 'Financial Management' },
+      { id: 5, code: 'BBA501', name: 'Operations Management' }
+    ],
+    'B.Com': [
+      { id: 1, code: 'COM301', name: 'Corporate Accounting 1' },
+      { id: 2, code: 'COM302', name: 'Financial Markets' },
+      { id: 3, code: 'COM401', name: 'Corporate Accounting 2' },
+      { id: 4, code: 'COM501', name: 'Cost Accounting 1' },
+      { id: 5, code: 'COM601', name: 'Management Accounting' }
+    ]
+  }
+  
+  const [courses, setCourses] = useState([])
+  const [students, setStudents] = useState([])
+  const [allStudents, setAllStudents] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [attendance, setAttendance] = useState({})
@@ -41,15 +51,45 @@ export default function TeacherAttendance() {
   useEffect(() => {
     if (!user || user.role !== 'staff') {
       navigate('/login')
+      return
     }
+    
+    fetchStudents()
   }, [])
+
+  const fetchStudents = async () => {
+    setLoading(true)
+    try {
+      const result = await api.getStudents()
+      if (result.success && result.data) {
+        // Filter students by teacher's department
+        const departmentStudents = result.data.filter(
+          student => student.department === teacherDepartment
+        )
+        setAllStudents(departmentStudents)
+        
+        // Set courses for teacher's department
+        const deptCourses = subjectDatabase[teacherDepartment] || []
+        const coursesWithCount = deptCourses.map(course => ({
+          ...course,
+          students: departmentStudents.length
+        }))
+        setCourses(coursesWithCount)
+      }
+    } catch (error) {
+      console.error('Error fetching students:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleCourseSelect = (course) => {
     setSelectedCourse(course)
+    setStudents(allStudents)
     // Initialize attendance state for all students as present by default
     const initialAttendance = {}
-    students.forEach(student => {
-      initialAttendance[student.id] = 'present'
+    allStudents.forEach(student => {
+      initialAttendance[student.student_id || student.id] = 'present'
     })
     setAttendance(initialAttendance)
   }
@@ -151,12 +191,26 @@ export default function TeacherAttendance() {
         </div>
       </div>
 
-      {!selectedCourse ? (
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center">
+            <i className="fas fa-spinner fa-spin text-6xl text-orange-500 mb-4"></i>
+            <p className="text-slate-600 dark:text-slate-400 text-lg">Loading students...</p>
+          </div>
+        </div>
+      ) : !selectedCourse ? (
         /* Course Selection Grid */
         <div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Select Your Course</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
+          {courses.length === 0 ? (
+            <div className="text-center py-12 bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-8 border border-white/20">
+              <i className="fas fa-book-open text-6xl text-slate-300 dark:text-slate-600 mb-4"></i>
+              <p className="text-slate-600 dark:text-slate-400 text-lg mb-2">No courses available</p>
+              <p className="text-slate-500 dark:text-slate-500 text-sm">No students found in {teacherDepartment} department</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
               <motion.div
                 key={course.id}
                 whileHover={{ scale: 1.02, y: -5 }}
@@ -171,14 +225,14 @@ export default function TeacherAttendance() {
                     {course.students} Students
                   </span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">{course.name}</h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-4 text-sm">{course.code}</p>
-                <button className="w-full mt-4 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6">{course.name}</h3>
+                <button className="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold transition-all">
                   Select Course
                 </button>
               </motion.div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       ) : (
         /* Attendance Marking Interface */
@@ -221,35 +275,48 @@ export default function TeacherAttendance() {
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Student Attendance</h3>
             
             <div className="space-y-3">
-              {students.map((student) => (
+              {students.map((student) => {
+                const studentId = student.student_id || student.id
+                const studentName = student.full_name || student.name
+                const studentRoll = student.student_id || student.rollNo
+                
+                return (
                 <motion.div
-                  key={student.id}
+                  key={studentId}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ 
                     opacity: 1, 
                     x: 0,
-                    backgroundColor: attendance[student.id] === 'present' 
+                    backgroundColor: attendance[studentId] === 'present' 
                       ? 'rgba(34, 197, 94, 0.1)' 
-                      : attendance[student.id] === 'absent'
+                      : attendance[studentId] === 'absent'
                       ? 'rgba(239, 68, 68, 0.1)'
                       : undefined
                   }}
                   transition={{ duration: 0.3 }}
                   className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
-                    attendance[student.id] === 'present'
+                    attendance[studentId] === 'present'
                       ? 'border-green-400 dark:border-green-500 bg-green-50/50 dark:bg-green-900/20'
-                      : attendance[student.id] === 'absent'
+                      : attendance[studentId] === 'absent'
                       ? 'border-red-400 dark:border-red-500 bg-red-50/50 dark:bg-red-900/20'
                       : 'border-white/20 bg-white/50 dark:bg-gray-700/30 hover:bg-white/70 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <div className="flex items-center gap-4 flex-1">
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                        {student.name.split(' ').map(n => n[0]).join('')}
-                      </div>
+                      {student.profile_image ? (
+                        <img 
+                          src={student.profile_image} 
+                          alt={studentName}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-800"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                          {studentName.split(' ').map(n => n[0]).join('')}
+                        </div>
+                      )}
                       {/* Status Badge */}
-                      {attendance[student.id] === 'present' && (
+                      {attendance[studentId] === 'present' && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
@@ -258,7 +325,7 @@ export default function TeacherAttendance() {
                           <i className="fas fa-check text-white text-xs"></i>
                         </motion.div>
                       )}
-                      {attendance[student.id] === 'absent' && (
+                      {attendance[studentId] === 'absent' && (
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
@@ -269,26 +336,26 @@ export default function TeacherAttendance() {
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-slate-800 dark:text-white">{student.name}</p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{student.rollNo}</p>
+                      <p className="font-bold text-slate-800 dark:text-white">{studentName}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">{studentRoll}</p>
                     </div>
                   </div>
 
                   {/* Attendance Toggle Buttons */}
                   <div className="flex items-center gap-3">
                     <motion.button
-                      onClick={() => handleAttendanceChange(student.id, 'present')}
+                      onClick={() => handleAttendanceChange(studentId, 'present')}
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.05 }}
                       className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 ${
-                        attendance[student.id] === 'present'
+                        attendance[studentId] === 'present'
                           ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-xl shadow-green-500/50 ring-2 ring-green-400'
                           : 'bg-white/50 dark:bg-gray-600/50 text-slate-600 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-300 dark:border-slate-600'
                       }`}
                     >
                       <motion.i 
                         className="fas fa-check"
-                        animate={attendance[student.id] === 'present' ? {
+                        animate={attendance[studentId] === 'present' ? {
                           scale: [1, 1.3, 1],
                           rotate: [0, 10, -10, 0]
                         } : {}}
@@ -297,18 +364,18 @@ export default function TeacherAttendance() {
                       Present
                     </motion.button>
                     <motion.button
-                      onClick={() => handleAttendanceChange(student.id, 'absent')}
+                      onClick={() => handleAttendanceChange(studentId, 'absent')}
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.05 }}
                       className={`px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 ${
-                        attendance[student.id] === 'absent'
+                        attendance[studentId] === 'absent'
                           ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-xl shadow-red-500/50 ring-2 ring-red-400'
                           : 'bg-white/50 dark:bg-gray-600/50 text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 border border-slate-300 dark:border-slate-600'
                       }`}
                     >
                       <motion.i 
                         className="fas fa-times"
-                        animate={attendance[student.id] === 'absent' ? {
+                        animate={attendance[studentId] === 'absent' ? {
                           scale: [1, 1.3, 1],
                           rotate: [0, 180, 360]
                         } : {}}
@@ -318,7 +385,7 @@ export default function TeacherAttendance() {
                     </motion.button>
                   </div>
                 </motion.div>
-              ))}
+              )})}
             </div>
           </div>
 

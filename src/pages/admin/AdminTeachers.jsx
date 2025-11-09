@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import ThemeToggle from '../../components/ThemeToggle'
+import CustomSelect from '../../components/CustomSelect'
 import api from '../../services/api'
 
 export default function AdminTeachers() {
@@ -28,14 +29,18 @@ export default function AdminTeachers() {
     username: '',
     email: '',
     password: '',
-    department: 'Computer Science',
+    department: 'BCA',
     specialization: '',
     phone: '',
     qualification: 'Ph.D.'
   })
 
-  const departments = ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil']
+  const departments = ['BCA', 'BBA', 'B.Com']
   const qualifications = ['Ph.D.', 'M.Tech', 'M.Sc.', 'B.Tech']
+  
+  // Convert to options format for CustomSelect
+  const departmentOptions = departments.map(dept => ({ value: dept, label: dept }))
+  const qualificationOptions = qualifications.map(qual => ({ value: qual, label: qual }))
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -93,7 +98,7 @@ export default function AdminTeachers() {
         username: '',
         email: '',
         password: '',
-        department: 'Computer Science',
+        department: 'BCA',
         specialization: '',
         phone: '',
         qualification: 'Ph.D.'
@@ -158,7 +163,7 @@ export default function AdminTeachers() {
       username: '',
       email: '',
       password: '',
-      department: 'Computer Science',
+      department: 'BCA',
       specialization: '',
       phone: '',
       qualification: 'Ph.D.'
@@ -308,40 +313,26 @@ export default function AdminTeachers() {
             </div>
 
             {/* Qualification */}
-            <div>
-              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
-                Qualification <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="qualification"
-                value={formData.qualification}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-green-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
-              >
-                {qualifications.map(qual => (
-                  <option key={qual} value={qual}>{qual}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              name="qualification"
+              value={formData.qualification}
+              onChange={handleInputChange}
+              options={qualificationOptions}
+              label={<>Qualification <span className="text-red-500">*</span></>}
+              placeholder="Select qualification"
+              icon="fas fa-graduation-cap"
+            />
 
             {/* Department */}
-            <div>
-              <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-2">
-                Department <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-green-500 focus:bg-white/70 dark:focus:bg-gray-700/70 transition-all"
-              >
-                {departments.map(dept => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              name="department"
+              value={formData.department}
+              onChange={handleInputChange}
+              options={departmentOptions}
+              label={<>Department <span className="text-red-500">*</span></>}
+              placeholder="Select department"
+              icon="fas fa-building"
+            />
 
             {/* Specialization */}
             <div>

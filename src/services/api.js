@@ -12,7 +12,7 @@ class ApiService {
       'admin': { password: '123', role: 'admin', full_name: 'Admin User', department: 'Administration' },
       
       // Staff/Teacher users
-      'teacher': { password: '123', role: 'staff', full_name: 'Teacher User', department: 'Computer Science' },
+      'teacher': { password: '123', role: 'staff', full_name: 'Teacher User', department: 'BCA' },
       'rajesh.kumar': { password: '123', role: 'staff', full_name: 'Rajesh Kumar', department: 'BCA' },
       'priya.sharma': { password: '123', role: 'staff', full_name: 'Priya Sharma', department: 'BBA' },
       
@@ -22,7 +22,7 @@ class ApiService {
       'aarav.sharma': { password: '123', role: 'student', full_name: 'Aarav Sharma', department: 'BCA', semester: '1' },
       'diya.patel': { password: '123', role: 'student', full_name: 'Diya Patel', department: 'BBA', semester: '3' },
       'rahul.verma': { password: '123', role: 'student', full_name: 'Rahul Verma', department: 'B.Com', semester: '5' },
-      'priya.singh': { password: '123', role: 'student', full_name: 'Priya Singh', department: 'BSc Physics', semester: '3' }
+      'priya.singh': { password: '123', role: 'student', full_name: 'Priya Singh', department: 'B.Com', semester: '3' }
     };
     
     // Check if user exists

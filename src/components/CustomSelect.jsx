@@ -68,9 +68,14 @@ export default function CustomSelect({ name, value, onChange, options, label, ic
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute z-50 mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto scrollbar-hide"
+            className="absolute z-[100] mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto scrollbar-hide"
           >
-            {options.map((option, index) => {
+            {options.length === 0 ? (
+              <div className="px-5 py-3.5 text-slate-500 dark:text-slate-400 text-center">
+                No options available
+              </div>
+            ) : (
+              options.map((option, index) => {
               const isSelected = selectedValue === option.value
               return (
                 <motion.div
@@ -95,7 +100,7 @@ export default function CustomSelect({ name, value, onChange, options, label, ic
                   )}
                 </motion.div>
               )
-            })}
+            }))}
           </motion.div>
         )}
       </AnimatePresence>

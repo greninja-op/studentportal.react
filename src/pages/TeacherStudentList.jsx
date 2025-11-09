@@ -12,11 +12,11 @@ export default function TeacherStudentList() {
   const [students] = useState([
     {
       id: 1,
-      rollNo: 'CS2023001',
+      rollNo: 'BCA2023001',
       name: 'Aarav Sharma',
       email: 'aarav@university.edu',
       phone: '+91 98765 43210',
-      department: 'Computer Science',
+      department: 'BCA',
       semester: 5,
       section: 'A',
       profileImage: null,
@@ -36,11 +36,11 @@ export default function TeacherStudentList() {
     },
     {
       id: 2,
-      rollNo: 'CS2023002',
+      rollNo: 'BCA2023002',
       name: 'Diya Patel',
       email: 'diya@university.edu',
       phone: '+91 98765 43212',
-      department: 'Computer Science',
+      department: 'BCA',
       semester: 5,
       section: 'A',
       profileImage: null,
@@ -60,12 +60,12 @@ export default function TeacherStudentList() {
     },
     {
       id: 3,
-      rollNo: 'CS2023003',
+      rollNo: 'BBA2023003',
       name: 'Arjun Kumar',
       email: 'arjun@university.edu',
       phone: '+91 98765 43214',
-      department: 'Computer Science',
-      semester: 5,
+      department: 'BBA',
+      semester: 3,
       section: 'B',
       profileImage: null,
       attendance: 78.9,
@@ -83,11 +83,11 @@ export default function TeacherStudentList() {
     },
     {
       id: 4,
-      rollNo: 'CS2023004',
+      rollNo: 'COM2023004',
       name: 'Ananya Singh',
       email: 'ananya@university.edu',
       phone: '+91 98765 43216',
-      department: 'Computer Science',
+      department: 'B.Com',
       semester: 5,
       section: 'A',
       profileImage: null,
@@ -107,12 +107,12 @@ export default function TeacherStudentList() {
     },
     {
       id: 5,
-      rollNo: 'CS2023005',
+      rollNo: 'BCA2024005',
       name: 'Vihaan Reddy',
       email: 'vihaan@university.edu',
       phone: '+91 98765 43218',
-      department: 'Computer Science',
-      semester: 5,
+      department: 'BCA',
+      semester: 1,
       section: 'B',
       profileImage: null,
       attendance: 82.1,
@@ -132,11 +132,13 @@ export default function TeacherStudentList() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [filterBatch, setFilterBatch] = useState('all')
+  const [filterDepartment, setFilterDepartment] = useState('all')
+  const [filterSemester, setFilterSemester] = useState('all')
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [showFullDetails, setShowFullDetails] = useState(false)
 
   // Get teacher's department from user data
-  const teacherDepartment = user?.department || 'Computer Science'
+  const teacherDepartment = user?.department || 'BCA'
 
   // Calculate admission year from semester (assuming current year is 2024)
   const getAdmissionYear = (semester) => {
@@ -151,19 +153,19 @@ export default function TeacherStudentList() {
     }
   }, [])
 
-  // Filter students by teacher's department first, then by batch
+  // Filter students by department, semester, and batch
   const filteredStudents = students.filter(student => {
-    // Only show students from teacher's department
-    if (student.department !== teacherDepartment) return false
-    
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.email.toLowerCase().includes(searchQuery.toLowerCase())
     
+    const matchesDepartment = filterDepartment === 'all' || student.department === filterDepartment
+    const matchesSemester = filterSemester === 'all' || student.semester === parseInt(filterSemester)
+    
     const studentBatch = getAdmissionYear(student.semester)
     const matchesBatch = filterBatch === 'all' || studentBatch === parseInt(filterBatch)
     
-    return matchesSearch && matchesBatch
+    return matchesSearch && matchesDepartment && matchesSemester && matchesBatch
   })
 
   const getAttendanceColor = (percentage) => {
@@ -227,18 +229,45 @@ export default function TeacherStudentList() {
 
       {/* Search and Filters */}
       <div className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-white/20 shadow-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
-          <div className="relative">
+          <div className="relative md:col-span-2 lg:col-span-1">
             <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
             <input
               type="text"
-              placeholder="Search by name, roll no, or email..."
+              placeholder="Search students..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
+
+          {/* Department Filter */}
+          <select
+            value={filterDepartment}
+            onChange={(e) => setFilterDepartment(e.target.value)}
+            className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="all">All Departments</option>
+            <option value="BCA">BCA</option>
+            <option value="BBA">BBA</option>
+            <option value="B.Com">B.Com</option>
+          </select>
+
+          {/* Semester Filter */}
+          <select
+            value={filterSemester}
+            onChange={(e) => setFilterSemester(e.target.value)}
+            className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            <option value="all">All Semesters</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            <option value="4">Semester 4</option>
+            <option value="5">Semester 5</option>
+            <option value="6">Semester 6</option>
+          </select>
 
           {/* Batch/Admission Year Filter */}
           <select
@@ -247,10 +276,10 @@ export default function TeacherStudentList() {
             className="px-4 py-3 bg-white/50 dark:bg-gray-700/50 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             <option value="all">All Batches</option>
-            <option value="2024">2024 Batch (2024-2028)</option>
-            <option value="2023">2023 Batch (2023-2027)</option>
-            <option value="2022">2022 Batch (2022-2026)</option>
-            <option value="2021">2021 Batch (2021-2025)</option>
+            <option value="2024">2024 Batch</option>
+            <option value="2023">2023 Batch</option>
+            <option value="2022">2022 Batch</option>
+            <option value="2021">2021 Batch</option>
           </select>
         </div>
       </div>
